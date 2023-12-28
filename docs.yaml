@@ -9,290 +9,14 @@ servers:
   - url: http://localhost:3000/api/v1
     description: local server
 paths:
-  /all:
-    get:
+  # user
+  /user/register:
+    post:
       tags:
-        - all
-      summary: Mendapatkan total data 
-      description: Mendapatkan total data wisata, hotel, ulasan, kecamatan
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object 
-                        properties: 
-                          hotel: 
-                            type: number
-                            example: 1
-                          wisata: 
-                            type: number
-                            example: 1
-                          kecamatan: 
-                            type: number
-                            example: 1
-                          ulasan: 
-                            type: number
-                            example: 1
-        
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-
-  
-
-  # ulasan
-  /ulasan:
-    get:
-      tags:
-        - Ulasan
+        - User
       summary: Mendapatkan ulasan
       description: Mendapatkan semua ulasan
-      operationId: getUlasan
-      parameters:
-        - name: page
-          in: query
-          description: Get users by page
-          schema:
-            type : integer
-            format: int64
-            minimum: 1
-        - name: limit
-          in: query
-          description: Get users by limit
-          schema:
-            type : integer
-            format: int64
-            minimum: 1
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                              example: 2
-                            nama:
-                              type: string
-                              example: "ads"
-                            ulasan:
-                              type: string
-                              example: "apa adanya"
-                            wisataId:
-                              type: integer
-                              example: 20
-                            hotelId:
-                              type: string
-                              example: null
-                            createdAt:
-                              type: string
-                              format: date-time
-                              example: "2023-11-26T07:42:08.186Z"
-                            updatedAt:
-                              type: string
-                              format: date-time
-                              example: "2023-11-26T07:42:08.186Z"
-                            wisata:
-                              type: string
-                              example: "The Westin Singapore"
-  
-  /ulasan/{id}:
-    get:
-      tags:
-        - Ulasan
-      summary: Mendapatkan ulasan
-      description: Mendapatkan ulasan sesuai id
-      operationId: getUlasanById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get Ulasan By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "OK"
-                  err:
-                    type: object
-                    example: null
-                  data:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        example: 2
-                      nama:
-                        type: string
-                        example: "ads"
-                      ulasan:
-                        type: string
-                        example: "apa adanya"
-                      wisataId:
-                        type: integer
-                        example: 20
-                      hotelId:
-                        type: string
-                        example: null
-                      createdAt:
-                        type: string
-                        format: date-time
-                        example: "2023-11-26T07:42:08.186Z"
-                      updatedAt:
-                        type: string
-                        format: date-time
-                        example: "2023-11-26T07:42:08.186Z"
-                      wisata:
-                        type: string
-                        example: "The Westin Singapore"
-        '400':
-          description: Invalid status value
-    
-    post:
-      tags:
-        - Ulasan
-      summary: Menambahkan ulasan 
-      description: Menambahkan ulasan di wisata atau di hotel sesuai id
-      operationId: create-ulasan
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                nama:
-                  type: string
-                  default: "ads"
-                ulasan:
-                  type: string
-                  default: "apa adanya"
-                wisataId:
-                  type: integer
-                  default: 20
-                hotelId:
-                  type: string
-                  default: null
-      responses:
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-    
-    put:
-      tags:
-        - Ulasan
-      summary: Mengedit ulasan 
-      description: Mengedit ulasan sesuai id
-      operationId: update-ulasan
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get Ulasan By Id
-          schema:
-            type : integer
-            format: int64
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                nama:
-                  type: string
-                  default: "ads"
-                ulasan:
-                  type: string
-                  default: "apa adanya"
-                wisataId:
-                  type: integer
-                  default: 20
-                hotelId:
-                  type: string
-                  default: null
-      responses:
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-    
-    delete:
-      tags:
-        - Ulasan
-      summary: Menghapus ulasan
-      description: Menghapus ulasan sesuai id
-      operationId: deleteUlasanById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get Ulasan By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Data ulasan berhasil dihapus"
-                  err:
-                    type: string
-                    example: null
-                  data:
-                    type: object
-                    example: null
-        '400':
-          description: Invalid status value
-      security:
-        - bearerAuth: []
-        
-  /admin/login:
-    post:
-      tags:
-        - Admin
-      summary: Login admin
-      description: Login admin
-      operationId: login-admin
+      operationId: register
       requestBody:
         required: true
         content:
@@ -300,21 +24,68 @@ paths:
             schema:
               type: object
               properties:
-                username:
+                email:
                   type: string
-                  default: "yowwww"
+                  default: "mail@mail.com"
                 password:
                   type: string
-                  default: "adanya"
+                  default: "**********"
+                fullname:
+                  type: string
+                  default: "Fatkhurrohman Purnomo"
+                sapi:
+                  type: integer
+                  default: 1
+                no_wa:
+                  type: string
+                  default: "085151515151"
+                rt:
+                  type: string
+                  default: "01"
+                rw: 
+                  type: string
+                  default: "01"
+                id_kelompok:
+                  type: integer
+                  default: 01
+                role:
+                  type: string
+                  default: "pembeli"
       responses:
         '201':
           description: OK!
-        '400':
-          description: Invalid status value
-  /admin/whoami:
+        '404':
+          description: Bad Request
+  
+  /user/login:
+    post:
+      tags:
+        - User
+      summary: Mendapatkan ulasan
+      description: Mendapatkan semua ulasan
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  default: "mail@mail.com"
+                password:
+                  type: string
+                  default: "**********"
+      responses:
+        '201':
+          description: OK!
+        '404':
+          description: Bad Request
+  /user/whoami:
     get:
       tags:
-        - Admin
+        - User
       summary: Mendapatkan ulasan
       description: Mendapatkan semua ulasan
       operationId: getUlasan
@@ -322,9 +93,287 @@ paths:
         - bearerAuth: []
       responses:
         "200":
-          description: Successful operation
+          description: OK!
         '400':
           description: Invalid status value
+
+  # ulasan
+  # /user/registesadr:
+  #   get:
+  #     tags:
+  #       - Ulasan
+  #     summary: Mendapatkan ulasan
+  #     description: Mendapatkan semua ulasan
+  #     operationId: registeras
+  #     parameters:
+  #       - name: page
+  #         in: query
+  #         description: Get users by page
+  #         schema:
+  #           type : integer
+  #           format: int64
+  #           minimum: 1
+  #       - name: limit
+  #         in: query
+  #         description: Get users by limit
+  #         schema:
+  #           type : integer
+  #           format: int64
+  #           minimum: 1
+  #     responses:
+  #       "200":
+  #         description: Successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               allOf:
+  #                 - $ref: "#/components/schemas/BasicResponse"
+  #                 - type: object
+  #                   properties:
+  #                     data:
+  #                       type: array
+  #                       items:
+  #                         type: object
+  #                         properties:
+  #                           id:
+  #                             type: integer
+  #                             example: 2
+  #                           nama:
+  #                             type: string
+  #                             example: "ads"
+  #                           ulasan:
+  #                             type: string
+  #                             example: "apa adanya"
+  #                           wisataId:
+  #                             type: integer
+  #                             example: 20
+  #                           hotelId:
+  #                             type: string
+  #                             example: null
+  #                           createdAt:
+  #                             type: string
+  #                             format: date-time
+  #                             example: "2023-11-26T07:42:08.186Z"
+  #                           updatedAt:
+  #                             type: string
+  #                             format: date-time
+  #                             example: "2023-11-26T07:42:08.186Z"
+  #                           wisata:
+  #                             type: string
+  #                             example: "The Westin Singapore"
+  
+  # /ulasan/{id}:
+  #   get:
+  #     tags:
+  #       - Ulasan
+  #     summary: Mendapatkan ulasan
+  #     description: Mendapatkan ulasan sesuai id
+  #     operationId: getUlasanById
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: Get Ulasan By Id
+  #         schema:
+  #           type : integer
+  #           format: int64
+  #     responses:
+  #       "200":
+  #         description: Successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: boolean
+  #                   example: true
+  #                 message:
+  #                   type: string
+  #                   example: "OK"
+  #                 err:
+  #                   type: object
+  #                   example: null
+  #                 data:
+  #                   type: object
+  #                   properties:
+  #                     id:
+  #                       type: integer
+  #                       example: 2
+  #                     nama:
+  #                       type: string
+  #                       example: "ads"
+  #                     ulasan:
+  #                       type: string
+  #                       example: "apa adanya"
+  #                     wisataId:
+  #                       type: integer
+  #                       example: 20
+  #                     hotelId:
+  #                       type: string
+  #                       example: null
+  #                     createdAt:
+  #                       type: string
+  #                       format: date-time
+  #                       example: "2023-11-26T07:42:08.186Z"
+  #                     updatedAt:
+  #                       type: string
+  #                       format: date-time
+  #                       example: "2023-11-26T07:42:08.186Z"
+  #                     wisata:
+  #                       type: string
+  #                       example: "The Westin Singapore"
+  #       '400':
+  #         description: Invalid status value
+    
+  #   post:
+  #     tags:
+  #       - Ulasan
+  #     summary: Menambahkan ulasan 
+  #     description: Menambahkan ulasan di wisata atau di hotel sesuai id
+  #     operationId: create-ulasan
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         multipart/form-data:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               nama:
+  #                 type: string
+  #                 default: "ads"
+  #               ulasan:
+  #                 type: string
+  #                 default: "apa adanya"
+  #               wisataId:
+  #                 type: integer
+  #                 default: 20
+  #               hotelId:
+  #                 type: string
+  #                 default: null
+  #     responses:
+  #       '201':
+  #         description: OK!
+  #       '400':
+  #         description: Invalid status value
+    
+  #   put:
+  #     tags:
+  #       - Ulasan
+  #     summary: Mengedit ulasan 
+  #     description: Mengedit ulasan sesuai id
+  #     operationId: update-ulasan
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: Get Ulasan By Id
+  #         schema:
+  #           type : integer
+  #           format: int64
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         multipart/form-data:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               nama:
+  #                 type: string
+  #                 default: "ads"
+  #               ulasan:
+  #                 type: string
+  #                 default: "apa adanya"
+  #               wisataId:
+  #                 type: integer
+  #                 default: 20
+  #               hotelId:
+  #                 type: string
+  #                 default: null
+  #     responses:
+  #       '201':
+  #         description: OK!
+  #       '400':
+  #         description: Invalid status value
+    
+  #   delete:
+  #     tags:
+  #       - Ulasan
+  #     summary: Menghapus ulasan
+  #     description: Menghapus ulasan sesuai id
+  #     operationId: deleteUlasanById
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: Get Ulasan By Id
+  #         schema:
+  #           type : integer
+  #           format: int64
+  #     responses:
+  #       "200":
+  #         description: Successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: boolean
+  #                   example: true
+  #                 message:
+  #                   type: string
+  #                   example: "Data ulasan berhasil dihapus"
+  #                 err:
+  #                   type: string
+  #                   example: null
+  #                 data:
+  #                   type: object
+  #                   example: null
+  #       '400':
+  #         description: Invalid status value
+  #     security:
+  #       - bearerAuth: []
+        
+  # /admin/login:
+  #   post:
+  #     tags:
+  #       - Admin
+  #     summary: Login admin
+  #     description: Login admin
+  #     operationId: login-admin
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               username:
+  #                 type: string
+  #                 default: "yowwww"
+  #               password:
+  #                 type: string
+  #                 default: "adanya"
+  #     responses:
+  #       '201':
+  #         description: OK!
+  #       '400':
+  #         description: Invalid status value
+  # /admin/whoami:
+  #   get:
+  #     tags:
+  #       - Admin
+  #     summary: Mendapatkan ulasan
+  #     description: Mendapatkan semua ulasan
+  #     operationId: getUlasan
+  #     security:
+  #       - bearerAuth: []
+  #     responses:
+  #       "200":
+  #         description: Successful operation
+  #       '400':
+  #         description: Invalid status value
 
 components:
   securitySchemes:
