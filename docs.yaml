@@ -1,1141 +1,22 @@
 openapi: '3.0.2'
 info:
-  title: Explore Banyumas
-  description: This is a sample Explore Banyumas server.
+  title: SI-EMOO
+  description: This is a sample SI-EMOO server.
   version: '1.0.0'
 servers:
-  - url: https://be-explore-banyumas.vercel.app/api/v1
+  - url: https://siemoo.vercel.app/api/v1
     description: Development server
-  - url: http://localhost:8000/api/v1
+  - url: http://localhost:3000/api/v1
     description: local server
 paths:
-  /all:
-    get:
-      tags:
-        - all
-      summary: Mendapatkan total data 
-      description: Mendapatkan total data wisata, hotel, ulasan, kecamatan
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object 
-                        properties: 
-                          hotel: 
-                            type: number
-                            example: 1
-                          wisata: 
-                            type: number
-                            example: 1
-                          kecamatan: 
-                            type: number
-                            example: 1
-                          ulasan: 
-                            type: number
-                            example: 1
-        
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-
-  # hotel
-  /hotel:
-    get:
-      tags:
-        - Hotel
-      summary: Mendapatkan semua data hotel
-      description: Mendapatkan semua data hotel
-      operationId: getHotel
-      parameters:
-        - name: page
-          in: query
-          description: Get hotel by page
-          schema:
-            type : integer
-            format: int64
-            minimum: 1
-        - name: limit
-          in: query
-          description: Get hotel by limit
-          schema:
-            type : integer
-            format: int64
-            minimum: 1
-        - name: search
-          in: query
-          description: Get hotel by search
-          schema:
-            type : string
-            format: string
-            minimum: 1
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          pagination:
-                            $ref: "#/components/schemas/Pagination"
-                          hotel:
-                            type: array
-                            items:
-                              $ref: "#/components/schemas/Hotel"        
-        
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-    
+  # user
+  /user/register:
     post:
       tags:
-        - Hotel
-      summary: Menambahkan data hotel
-      description: Menambahkan data hotel
-      operationId: Create-hotel
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                nama:
-                  type: string
-                  default: "Hotel 1"
-                deskripsi:
-                  type: string
-                  default: "Jl. Hotel 1"
-                alamat:
-                  type: string
-                  default: "08123456789"
-                maps: 
-                  type: string
-                  default: <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d25327.393042209827!2d103.84395628016044!3d1.2853458015880712!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da19118a28bc59%3A0xcadfdd1a0bcb30f0!2sThe%20Westin%20Singapore!5e0!3m2!1sid!2ssg!4v1700898169200!5m2!1sid!2ssg" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                  description: Masukkan link maps yang didapatkan dari share -> html
-                price:
-                  type: integer
-                  default: 100000
-                idKecamatan:
-                  type: integer
-                  default: 1
-                image:
-                  type: string
-                  format: binary
-                  description: Masukkan 3 gambar
-                wifi:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                bar:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                roomService:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                breakfast:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                restaurant:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                pool:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                parkir:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                bathrom:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                bedroom:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-      security:
-        - bearerAuth: []
-      responses:
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-
-  /hotel/{id}:
-    get:
-      tags:
-        - Hotel
-      summary: Mendapatkan data hotel sesuai id
-      description: Mendapatkan data hotel sesuai id
-      operationId: getHotelById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get User By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/Hotel"   
-        '400':
-          description: Invalid status value
-    
-    put:
-      tags:
-        - Hotel
-      summary: Edit hotel sesuai id
-      description: Edit hotel sesuai id
-      operationId: update-hotel
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get hotel By Id
-          schema:
-            type : integer
-            format: int64
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                nama:
-                  type: string
-                  default: "Hotel 1"
-                deskripsi:
-                  type: string
-                  default: "Jl. Hotel 1"
-                alamat:
-                  type: string
-                  default: "08123456789"
-                maps: 
-                  type: string
-                  default: <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d25327.393042209827!2d103.84395628016044!3d1.2853458015880712!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da19118a28bc59%3A0xcadfdd1a0bcb30f0!2sThe%20Westin%20Singapore!5e0!3m2!1sid!2ssg!4v1700898169200!5m2!1sid!2ssg" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                  description: Masukkan link maps yang didapatkan dari share -> html
-                price:
-                  type: integer
-                  default: 100000
-                idKecamatan:
-                  type: integer
-                  default: 1
-                image:
-                  type: string
-                  format: binary
-                  description: Masukkan 3 gambar
-                wifi:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                bar:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                roomService:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                breakfast:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                restaurant:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                pool:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                parkir:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                bathrom:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                bedroom:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-      security:
-        - bearerAuth: []          
-      responses:
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-    
-    delete:
-      tags:
-        - Hotel
-      summary: Menghapus hotel
-      description: Menghapus hotel sesuai id yang diberikan
-      operationId: deleteHotelById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get User By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Hotel berhasil dihapus"
-                  err:
-                    type: string
-                    example: null
-                  data:
-                    type: object
-                    example: null
-        '400':
-          description: Invalid status value
-      security:
-      - bearerAuth: []
-    
-  # wisata
-  /wisata:
-    get:
-      tags:
-        - Wisata
-      summary: Mendapatkan semua data wisata
-      description: Mendapatkan semua data wisata
-      operationId: getWisata
-      parameters:
-        - name: page
-          in: query
-          description: Get wisata by page
-          schema:
-            type : integer
-            format: int64
-            minimum: 1
-        - name: limit
-          in: query
-          description: Get wisata by limit
-          schema:
-            type : integer
-            format: int64
-            minimum: 1
-        - name: search
-          in: query
-          description: Get wisata by search
-          schema:
-            type : string
-            format: string
-            minimum: 1
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          pagination:
-                            $ref: "#/components/schemas/Pagination"
-                          hotel:
-                            type: array
-                            items:
-                              $ref: "#/components/schemas/Wisata"        
-        
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-    
-    post:
-      tags:
-        - Wisata
-      summary: Menambahkan data wisata
-      description: Menambahkan data wisata
-      operationId: create-wisata
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                nama:
-                  type: string
-                  default: "Hotel 1"
-                deskripsi:
-                  type: string
-                  default: "Jl. Hotel 1"
-                alamat:
-                  type: string
-                  default: "08123456789"
-                maps: 
-                  type: string
-                  default: <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d25327.393042209827!2d103.84395628016044!3d1.2853458015880712!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da19118a28bc59%3A0xcadfdd1a0bcb30f0!2sThe%20Westin%20Singapore!5e0!3m2!1sid!2ssg!4v1700898169200!5m2!1sid!2ssg" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                  description: Masukkan link maps yang didapatkan dari share -> html
-                price:
-                  type: integer
-                  default: 100000
-                idKecamatan:
-                  type: integer
-                  default: 1
-                image:
-                  type: string
-                  format: binary
-                  description: Masukkan 3 gambar
-                jarak: 
-                  type: integer
-                  default: 2
-                buka:
-                  type: string
-                  default: "00.00"
-                tutup:
-                  type: string
-                  default: "24.00"
-                akomodasi:
-                  type: integer
-                  default: 12
-                kolam:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                parkir:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                tiket:
-                  type: integer
-                  default: 50000
-      security:
-        - bearerAuth: []          
-      responses:
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-
-  /wisata/{id}:
-    get:
-      tags:
-        - Wisata
-      summary: Mendapatkan data wisata sesuai id
-      description: Mendapatkan data wisata seusai id
-      operationId: getWisataById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get User By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/Hotel"   
-        '400':
-          description: Invalid status value
-    
-    put:
-      tags:
-        - Wisata
-      summary: Edit wisata sesuai id
-      description: Edit wisata sesuai id
-      operationId: update-Wisata
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get User By Id
-          schema:
-            type : integer
-            format: int64
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                nama:
-                  type: string
-                  default: "Hotel 1"
-                deskripsi:
-                  type: string
-                  default: "Jl. Hotel 1"
-                alamat:
-                  type: string
-                  default: "08123456789"
-                maps: 
-                  type: string
-                  default: <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d25327.393042209827!2d103.84395628016044!3d1.2853458015880712!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da19118a28bc59%3A0xcadfdd1a0bcb30f0!2sThe%20Westin%20Singapore!5e0!3m2!1sid!2ssg!4v1700898169200!5m2!1sid!2ssg" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                  description: Masukkan link maps yang didapatkan dari share -> html
-                price:
-                  type: integer
-                  default: 100000
-                idKecamatan:
-                  type: integer
-                  default: 1
-                image:
-                  type: string
-                  format: binary
-                  description: Masukkan 3 gambar
-                jarak: 
-                  type: integer
-                  default: 2
-                buka:
-                  type: string
-                  default: "00.00"
-                tutup:
-                  type: string
-                  default: "24.00"
-                akomodasi:
-                  type: integer
-                  default: 12
-                kolam:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                parkir:
-                  type: boolean
-                  default: true
-                  description: Jika tidak ada bisa dikosongi
-                tiket:
-                  type: integer
-                  default: 50000
-      security:
-        - bearerAuth: []            
-      responses:
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-    
-    delete:
-      tags:
-        - Wisata
-      summary: Menghapus wisata
-      description: Menghapus wisata
-      operationId: deleteWisataById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get User By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Hotel berhasil dihapus"
-                  err:
-                    type: string
-                    example: null
-                  data:
-                    type: object
-                    example: null
-        '400':
-          description: Invalid status value
-      security:
-        - bearerAuth: []
-
-  # kecamatan
-  /kecamatan:
-    get:
-      tags:
-        - Kecamatan
-      summary: Mendapatkan data kecamatan
-      description: Mendapatkan semua data kecamatan
-      operationId: getKecamatan
-      parameters:
-        - name: page
-          in: query
-          description: Get hotel by page
-          schema:
-            type : integer
-            format: int64
-            minimum: 1
-        - name: limit
-          in: query
-          description: Get hotel by limit
-          schema:
-            type : integer
-            format: int64
-            minimum: 1
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                            example: 1
-                          nama:
-                            type: string
-                            example: "Kecamatan 1"
-                          createdAt:
-                            type: string
-                            example: "2021-08-01T00:00:00.000Z"
-                          updatedAt:
-                            type: string
-                            example: "2021-08-01T00:00:00.000Z"
-                          jumlah_hotel:
-                            type: integer
-                            example: 1
-                          jumlah_wisata:
-                            type: integer
-                            example: 1       
-        '400':
-          description: Invalid status value
-
-    post:
-      tags:
-        - Kecamatan
-      summary: Menambahkan kecamatan
-      description: Menambahkan kecamatan
-      operationId: create-kecamatan
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                nama:
-                  type: string
-                  default: "Kecamatan 1"
-      security:
-        - bearerAuth: []
-      responses:
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-
-  /kecamatan/hotel/{id}:
-    get:
-      tags:
-        - Kecamatan
-      summary: Mendapatkan hotel 
-      description: Mendapatkan hotel di kecamatan yang dipilih
-      operationId: hotel-id-kecamatan
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get User By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          pagination:
-                            $ref: "#/components/schemas/Pagination"
-                          kecamatan:
-                            type: object
-                            properties:
-                              id: 
-                                type: integer
-                                example: 1
-                              nama: 
-                                type: string
-                                example: "Kecamatan 1"
-                              hotel:
-                                type: array
-                                items:
-                                  $ref: "#/components/schemas/Hotel"          
-        '400':
-          description: Invalid status value
-
-  /kecamatan/wisata/{id}:
-    get:
-      tags:
-        - Kecamatan
-      summary: Mendapatkan wisata
-      description: Mendapatkan wisata di kecamatan yang dipilih
-      operationId: wisata-id-kecamatan
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get User By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          pagination:
-                            $ref: "#/components/schemas/Pagination"
-                          kecamatan:
-                            type: object
-                            properties:
-                              id: 
-                                type: integer
-                                example: 1
-                              nama: 
-                                type: string
-                                example: "Kecamatan 1"
-                              hotel:
-                                type: array
-                                items:
-                                  $ref: "#/components/schemas/Wisata"
-        '400':
-          description: Invalid status value
-
-  /kecamatan/{id}:
-    get:
-      tags:
-        - Kecamatan
-      summary: Mendapatkan kecamatan sesuai id
-      description: Mendapatkan kecamatan sesuai id
-      operationId: getKecamatanById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get User By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                            example: 1
-                          nama:
-                            type: string
-                            example: "Kecamatan 1"
-                          createdAt:
-                            type: string
-                            example: "2021-08-01T00:00:00.000Z"
-                          updatedAt:
-                            type: string
-                            example: "2021-08-01T00:00:00.000Z"
-        '400':
-          description: Invalid status value
-    
-    put:
-      tags:
-        - Kecamatan
-      summary: Mengedit kecamatan
-      description: Mengedit kecamatan sesuai id
-      operationId: update-kecamatan
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get User By Id
-          schema:
-            type : integer
-            format: int64
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                nama:
-                  type: string
-                  default: "Kecamatan 1"
-      security:
-        - bearerAuth: []
-      responses:
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-    
-    delete:
-      tags:
-        - Kecamatan
-      summary: Menghapus data kecamatan
-      description: Menghapus data kecamatan sesuai id
-      operationId: deleteKecamatanById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get User By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Data kecamatan berhasil dihapus"
-                  err:
-                    type: string
-                    example: null
-                  data:
-                    type: object
-                    example: null
-        '400':
-          description: Invalid status value
-      security:
-        - bearerAuth: []
-
-  # ulasan
-  /ulasan:
-    get:
-      tags:
-        - Ulasan
+        - User
       summary: Mendapatkan ulasan
       description: Mendapatkan semua ulasan
-      operationId: getUlasan
-      parameters:
-        - name: page
-          in: query
-          description: Get users by page
-          schema:
-            type : integer
-            format: int64
-            minimum: 1
-        - name: limit
-          in: query
-          description: Get users by limit
-          schema:
-            type : integer
-            format: int64
-            minimum: 1
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/BasicResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                              example: 2
-                            nama:
-                              type: string
-                              example: "ads"
-                            ulasan:
-                              type: string
-                              example: "apa adanya"
-                            wisataId:
-                              type: integer
-                              example: 20
-                            hotelId:
-                              type: string
-                              example: null
-                            createdAt:
-                              type: string
-                              format: date-time
-                              example: "2023-11-26T07:42:08.186Z"
-                            updatedAt:
-                              type: string
-                              format: date-time
-                              example: "2023-11-26T07:42:08.186Z"
-                            wisata:
-                              type: string
-                              example: "The Westin Singapore"
-  
-  /ulasan/{id}:
-    get:
-      tags:
-        - Ulasan
-      summary: Mendapatkan ulasan
-      description: Mendapatkan ulasan sesuai id
-      operationId: getUlasanById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get Ulasan By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "OK"
-                  err:
-                    type: object
-                    example: null
-                  data:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        example: 2
-                      nama:
-                        type: string
-                        example: "ads"
-                      ulasan:
-                        type: string
-                        example: "apa adanya"
-                      wisataId:
-                        type: integer
-                        example: 20
-                      hotelId:
-                        type: string
-                        example: null
-                      createdAt:
-                        type: string
-                        format: date-time
-                        example: "2023-11-26T07:42:08.186Z"
-                      updatedAt:
-                        type: string
-                        format: date-time
-                        example: "2023-11-26T07:42:08.186Z"
-                      wisata:
-                        type: string
-                        example: "The Westin Singapore"
-        '400':
-          description: Invalid status value
-    
-    post:
-      tags:
-        - Ulasan
-      summary: Menambahkan ulasan 
-      description: Menambahkan ulasan di wisata atau di hotel sesuai id
-      operationId: create-ulasan
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                nama:
-                  type: string
-                  default: "ads"
-                ulasan:
-                  type: string
-                  default: "apa adanya"
-                wisataId:
-                  type: integer
-                  default: 20
-                hotelId:
-                  type: string
-                  default: null
-      responses:
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-    
-    put:
-      tags:
-        - Ulasan
-      summary: Mengedit ulasan 
-      description: Mengedit ulasan sesuai id
-      operationId: update-ulasan
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get Ulasan By Id
-          schema:
-            type : integer
-            format: int64
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                nama:
-                  type: string
-                  default: "ads"
-                ulasan:
-                  type: string
-                  default: "apa adanya"
-                wisataId:
-                  type: integer
-                  default: 20
-                hotelId:
-                  type: string
-                  default: null
-      responses:
-        '201':
-          description: OK!
-        '400':
-          description: Invalid status value
-    
-    delete:
-      tags:
-        - Ulasan
-      summary: Menghapus ulasan
-      description: Menghapus ulasan sesuai id
-      operationId: deleteUlasanById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Get Ulasan By Id
-          schema:
-            type : integer
-            format: int64
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: "Data ulasan berhasil dihapus"
-                  err:
-                    type: string
-                    example: null
-                  data:
-                    type: object
-                    example: null
-        '400':
-          description: Invalid status value
-      security:
-        - bearerAuth: []
-        
-  /admin/login:
-    post:
-      tags:
-        - Admin
-      summary: Login admin
-      description: Login admin
-      operationId: login-admin
+      operationId: register
       requestBody:
         required: true
         content:
@@ -1143,21 +24,68 @@ paths:
             schema:
               type: object
               properties:
-                username:
+                email:
                   type: string
-                  default: "yowwww"
+                  default: "mail@mail.com"
                 password:
                   type: string
-                  default: "adanya"
+                  default: "**********"
+                fullname:
+                  type: string
+                  default: "Fatkhurrohman Purnomo"
+                sapi:
+                  type: integer
+                  default: 1
+                no_wa:
+                  type: string
+                  default: "085151515151"
+                rt:
+                  type: string
+                  default: "01"
+                rw: 
+                  type: string
+                  default: "01"
+                id_kelompok:
+                  type: integer
+                  default: 01
+                role:
+                  type: string
+                  default: "pembeli"
       responses:
         '201':
           description: OK!
-        '400':
-          description: Invalid status value
-  /admin/whoami:
+        '404':
+          description: Bad Request
+  
+  /user/login:
+    post:
+      tags:
+        - User
+      summary: Mendapatkan ulasan
+      description: Mendapatkan semua ulasan
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  default: "mail@mail.com"
+                password:
+                  type: string
+                  default: "**********"
+      responses:
+        '201':
+          description: OK!
+        '404':
+          description: Bad Request
+  /user/whoami:
     get:
       tags:
-        - Admin
+        - User
       summary: Mendapatkan ulasan
       description: Mendapatkan semua ulasan
       operationId: getUlasan
@@ -1165,9 +93,287 @@ paths:
         - bearerAuth: []
       responses:
         "200":
-          description: Successful operation
+          description: OK!
         '400':
           description: Invalid status value
+
+  # ulasan
+  # /user/registesadr:
+  #   get:
+  #     tags:
+  #       - Ulasan
+  #     summary: Mendapatkan ulasan
+  #     description: Mendapatkan semua ulasan
+  #     operationId: registeras
+  #     parameters:
+  #       - name: page
+  #         in: query
+  #         description: Get users by page
+  #         schema:
+  #           type : integer
+  #           format: int64
+  #           minimum: 1
+  #       - name: limit
+  #         in: query
+  #         description: Get users by limit
+  #         schema:
+  #           type : integer
+  #           format: int64
+  #           minimum: 1
+  #     responses:
+  #       "200":
+  #         description: Successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               allOf:
+  #                 - $ref: "#/components/schemas/BasicResponse"
+  #                 - type: object
+  #                   properties:
+  #                     data:
+  #                       type: array
+  #                       items:
+  #                         type: object
+  #                         properties:
+  #                           id:
+  #                             type: integer
+  #                             example: 2
+  #                           nama:
+  #                             type: string
+  #                             example: "ads"
+  #                           ulasan:
+  #                             type: string
+  #                             example: "apa adanya"
+  #                           wisataId:
+  #                             type: integer
+  #                             example: 20
+  #                           hotelId:
+  #                             type: string
+  #                             example: null
+  #                           createdAt:
+  #                             type: string
+  #                             format: date-time
+  #                             example: "2023-11-26T07:42:08.186Z"
+  #                           updatedAt:
+  #                             type: string
+  #                             format: date-time
+  #                             example: "2023-11-26T07:42:08.186Z"
+  #                           wisata:
+  #                             type: string
+  #                             example: "The Westin Singapore"
+  
+  # /ulasan/{id}:
+  #   get:
+  #     tags:
+  #       - Ulasan
+  #     summary: Mendapatkan ulasan
+  #     description: Mendapatkan ulasan sesuai id
+  #     operationId: getUlasanById
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: Get Ulasan By Id
+  #         schema:
+  #           type : integer
+  #           format: int64
+  #     responses:
+  #       "200":
+  #         description: Successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: boolean
+  #                   example: true
+  #                 message:
+  #                   type: string
+  #                   example: "OK"
+  #                 err:
+  #                   type: object
+  #                   example: null
+  #                 data:
+  #                   type: object
+  #                   properties:
+  #                     id:
+  #                       type: integer
+  #                       example: 2
+  #                     nama:
+  #                       type: string
+  #                       example: "ads"
+  #                     ulasan:
+  #                       type: string
+  #                       example: "apa adanya"
+  #                     wisataId:
+  #                       type: integer
+  #                       example: 20
+  #                     hotelId:
+  #                       type: string
+  #                       example: null
+  #                     createdAt:
+  #                       type: string
+  #                       format: date-time
+  #                       example: "2023-11-26T07:42:08.186Z"
+  #                     updatedAt:
+  #                       type: string
+  #                       format: date-time
+  #                       example: "2023-11-26T07:42:08.186Z"
+  #                     wisata:
+  #                       type: string
+  #                       example: "The Westin Singapore"
+  #       '400':
+  #         description: Invalid status value
+    
+  #   post:
+  #     tags:
+  #       - Ulasan
+  #     summary: Menambahkan ulasan 
+  #     description: Menambahkan ulasan di wisata atau di hotel sesuai id
+  #     operationId: create-ulasan
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         multipart/form-data:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               nama:
+  #                 type: string
+  #                 default: "ads"
+  #               ulasan:
+  #                 type: string
+  #                 default: "apa adanya"
+  #               wisataId:
+  #                 type: integer
+  #                 default: 20
+  #               hotelId:
+  #                 type: string
+  #                 default: null
+  #     responses:
+  #       '201':
+  #         description: OK!
+  #       '400':
+  #         description: Invalid status value
+    
+  #   put:
+  #     tags:
+  #       - Ulasan
+  #     summary: Mengedit ulasan 
+  #     description: Mengedit ulasan sesuai id
+  #     operationId: update-ulasan
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: Get Ulasan By Id
+  #         schema:
+  #           type : integer
+  #           format: int64
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         multipart/form-data:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               nama:
+  #                 type: string
+  #                 default: "ads"
+  #               ulasan:
+  #                 type: string
+  #                 default: "apa adanya"
+  #               wisataId:
+  #                 type: integer
+  #                 default: 20
+  #               hotelId:
+  #                 type: string
+  #                 default: null
+  #     responses:
+  #       '201':
+  #         description: OK!
+  #       '400':
+  #         description: Invalid status value
+    
+  #   delete:
+  #     tags:
+  #       - Ulasan
+  #     summary: Menghapus ulasan
+  #     description: Menghapus ulasan sesuai id
+  #     operationId: deleteUlasanById
+  #     parameters:
+  #       - name: id
+  #         in: path
+  #         required: true
+  #         description: Get Ulasan By Id
+  #         schema:
+  #           type : integer
+  #           format: int64
+  #     responses:
+  #       "200":
+  #         description: Successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: boolean
+  #                   example: true
+  #                 message:
+  #                   type: string
+  #                   example: "Data ulasan berhasil dihapus"
+  #                 err:
+  #                   type: string
+  #                   example: null
+  #                 data:
+  #                   type: object
+  #                   example: null
+  #       '400':
+  #         description: Invalid status value
+  #     security:
+  #       - bearerAuth: []
+        
+  # /admin/login:
+  #   post:
+  #     tags:
+  #       - Admin
+  #     summary: Login admin
+  #     description: Login admin
+  #     operationId: login-admin
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               username:
+  #                 type: string
+  #                 default: "yowwww"
+  #               password:
+  #                 type: string
+  #                 default: "adanya"
+  #     responses:
+  #       '201':
+  #         description: OK!
+  #       '400':
+  #         description: Invalid status value
+  # /admin/whoami:
+  #   get:
+  #     tags:
+  #       - Admin
+  #     summary: Mendapatkan ulasan
+  #     description: Mendapatkan semua ulasan
+  #     operationId: getUlasan
+  #     security:
+  #       - bearerAuth: []
+  #     responses:
+  #       "200":
+  #         description: Successful operation
+  #       '400':
+  #         description: Invalid status value
 
 components:
   securitySchemes:
@@ -1218,130 +424,3 @@ components:
         email:
           type: string
           example: "mail@mail.com"
-    Hotel: 
-      title: Hotel
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        nama:
-          type: string
-          example: "Hotel 1"
-        deskripsi:
-          type: string
-          example: "Jl. Hotel 1"
-        alamat:
-          type: string
-          example: "08123456789"
-        maps: 
-          type: string
-          example: "https://maps.google.com"
-        price:
-          type: integer
-          example: 100000
-        idKecamatan:
-          type: integer
-          example: 1
-        createdAt:
-          type: string
-          example: "2021-08-01T00:00:00.000Z"
-        updatedAt:
-          type: string
-          example: "2021-08-01T00:00:00.000Z"
-        gambar:
-          type: array
-          items:
-            type: string
-            example: "https://domain.com/image.jpg"
-        fasilitas:
-          type: object
-          properties:
-            wifi:
-              type: boolean
-              example: true
-            bar:
-              type: boolean
-              example: true
-            roomService:
-              type: boolean
-              example: true
-            breakfast:
-              type: boolean
-              example: true
-            restaurant:
-              type: boolean
-              example: true
-            pool:
-              type: boolean
-              example: true
-            parkir:
-              type: boolean
-              example: true
-            bathrom:
-              type: boolean
-              example: true
-            bedroom:
-              type: boolean
-              example: true
-    Wisata: 
-      title: Wisata
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        nama:
-          type: string
-          example: "Wisata"
-        deskripsi:
-          type: string
-          example: "Jl. Wisata 1"
-        alamat:
-          type: string
-          example: "08123456789"
-        maps: 
-          type: string
-          example: "https://maps.google.com"
-        price:
-          type: integer
-          example: 100000
-        idKecamatan:
-          type: integer
-          example: 1
-        createdAt:
-          type: string
-          example: "2021-08-01T00:00:00.000Z"
-        updatedAt:
-          type: string
-          example: "2021-08-01T00:00:00.000Z"
-        gambar:
-          type: array
-          items:
-            type: string
-            example: "https://domain.com/image.jpg"
-        keterangan:
-          type: object
-          properties:
-            jarak:
-              type: integer
-              example: 2
-            buka:
-              type: string
-              example: "00.00"
-            tutup:
-              type: string
-              example: "24.00"
-            akomodasi:
-              type: integer
-              example: 12
-            kolam:
-              type: boolean
-              example: true
-            parkir:
-              type: boolean
-              example: true
-            tiket:
-              type: integer
-              example: 50000
-            
