@@ -1,5 +1,4 @@
 const router = require("express").Router();
-const prisma = require("../libs/prisma");
 
 router.get("/", (req, res) => {
   res.json({
@@ -9,7 +8,7 @@ router.get("/", (req, res) => {
 });
 
 
-// router.use("/user", require("./user.route"));
+router.use('/user', require('./user.route'));
 // router.use("/kelompok", require("./kelompok.route"));
 // router.use("/limbah", require("./limbah.route"));
 // router.use("/pangan", require("./pangan.route"));

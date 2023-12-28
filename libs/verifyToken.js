@@ -1,38 +1,39 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = process.env;
-const prisma = require("./prisma");
 
 const verifyToken = (req, res, next) => {
-  let { authorization } = req.headers;
-  
-  if (!authorization) {
-    return res.status(401).json({
-      status: false,
-      message: "Unauthorized",
-      err: "missing token on header!",
+  if (req.headers.authorization === undefined)
+  return res.status(401).json({
+      success: false,
+      message: 'Unauthorized',
+      err: 'No token provided',
+      data: null,
+    });
+
+    const token = req.headers.authorization.split(' ')[1];
+    
+    if (!token) {
+      return res.status(401).json({
+      success: false,
+      message: 'Unauthorized',
+      err: 'No token provided',
       data: null,
     });
   }
-
-  authorization = authorization.replace("Bearer ", "");
-
-  jwt.verify(authorization, JWT_SECRET, async (err, decoded) => {
+  
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
-        message: "Unauthorized",
+        message: 'Unauthorized',
         err: err.message,
         data: null,
       });
+    } else {
+      req.user = decoded;
+      next();
     }
-
-    req.user = await prisma.admin.findUnique({
-      where: {
-        id: decoded.id,
-      },
-    });
-    next();
-  });
+});
 };
 
 module.exports = verifyToken;

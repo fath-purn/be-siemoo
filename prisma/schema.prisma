@@ -38,7 +38,7 @@ model Users {
   no_wa       String?
   rt          String?
   rw          String?
-  id_kelompok Int         @unique
+  id_kelompok Int
   kelompok    Kelompok    @relation(fields: [id_kelompok], references: [id])
   role        Role        @default(pembeli)
   artikels    Artikel[]
@@ -52,7 +52,7 @@ model Users {
 model Kelompok {
   id      Int      @id @default(autoincrement())
   nama    String
-  user    Users?
+  user    Users[]
   created DateTime @default(now())
   updated DateTime @updatedAt
 }
