@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  peternak
+  admin
+  pembeli
+}
+
+enum Menu {
+  olah_pangan
+  sulap_limbah
+}
+
+enum Hasil {
+  SangatBaik
+  Baik
+  Normal
+  Buruk
+  SangatBuruk
+}
+
+model Users {
+  id          Int         @id @default(autoincrement())
+  email       String      @unique
+  password    String
+  fullname    String
+  sapi        Int?
+  no_wa       String?
+  rt          String?
+  rw          String?
+  id_kelompok Int         @unique
+  kelompok    Kelompok    @relation(fields: [id_kelompok], references: [id])
+  role        Role        @default(pembeli)
+  artikels    Artikel[]
+  pengujian   Pengujian[]
+  deteksis    Deteksi[]
+  warung      Warung[]
+  created     DateTime    @default(now())
+  updated     DateTime    @updatedAt
+}
+
+model Kelompok {
+  id      Int      @id @default(autoincrement())
+  nama    String
+  user    Users?
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+}
+
+model Artikel {
+  id        Int      @id @default(autoincrement())
+  id_user   Int
+  judul     String
+  deskripsi String
+  menu      Menu
+  user      Users    @relation(fields: [id_user], references: [id])
+  media     Media[]
+  created   DateTime @default(now())
+  updated   DateTime @updatedAt
+}
+
+model Pengujian {
+  id      Int      @id @default(autoincrement())
+  id_user Int
+  fat     Float
+  snf     Float
+  protein Float
+  ph      Float
+  hasil   Hasil
+  user    Users    @relation(fields: [id_user], references: [id])
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+  Warung  Warung[]
+}
+
+model Deteksi {
+  id      Int      @id @default(autoincrement())
+  id_user Int
+  cctv    String
+  user    Users    @relation(fields: [id_user], references: [id])
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+}
+
+model Media {
+  id         Int      @id @default(autoincrement())
+  id_artikel Int?
+  id_warung  Int?
+  id_link    String
+  link       String
+  artikel    Artikel? @relation(fields: [id_artikel], references: [id])
+  warung     Warung?  @relation(fields: [id_warung], references: [id])
+  created    DateTime @default(now())
+  updated    DateTime @updatedAt
+}
+
+model Warung {
+  id           Int       @id @default(autoincrement())
+  id_user      Int
+  id_pengujian Int
+  nama         String
+  harga        Int
+  deskripsi    String
+  kuantiti     Int
+  stok         String
+  user         Users     @relation(fields: [id_user], references: [id])
+  pengujian    Pengujian @relation(fields: [id_pengujian], references: [id])
+  Media        Media[]
+  created      DateTime  @default(now())
+  updated      DateTime  @updatedAt
+}
