@@ -4,6 +4,20 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { registerValidationSchema, loginUserSchema } = require('../validations/user.validation')
 
+function toIndonesianPhoneNumber(phoneNumber) {
+    let digitsOnly = phoneNumber.replace(/\D/g, '');
+  
+    if (digitsOnly.startsWith('0')) {
+      return '+62' + digitsOnly.substring(1);
+    }
+  
+    if (!digitsOnly.startsWith('62')) {
+      return '+62' + digitsOnly;
+    }
+  
+    return digitsOnly;
+  }
+
 // register
 const register = async (req, res, next) => {
   try {
@@ -36,6 +50,7 @@ const register = async (req, res, next) => {
     }
 
     let encryptedPassword = await bcrypt.hash(password, 10);
+    let indonesianPhoneNumber = toIndonesianPhoneNumber(no_wa);
 
     let users = await prisma.users.create({
       data: {
@@ -43,7 +58,7 @@ const register = async (req, res, next) => {
         password: encryptedPassword,
         fullname,
         sapi,
-        no_wa,
+        no_wa: indonesianPhoneNumber,
         rt,
         rw,
         id_kelompok,
@@ -55,7 +70,7 @@ const register = async (req, res, next) => {
 
     return res.status(201).json({
       status: true,
-      message: "Created Successfully!",
+      message: "OK!",
       err: null,
       data: users,
     });
@@ -129,7 +144,7 @@ const login = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Login success',
+      message: 'OK!',
       err: null,
       data: {
         user: user,
@@ -168,7 +183,7 @@ const authenticate = async (req, res, next) => {
 
     return res.status(200).json({
       status: true,
-      message: "OK",
+      message: "OK!",
       err: null,
       data: { ...userDetail },
     });
