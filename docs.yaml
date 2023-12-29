@@ -262,7 +262,261 @@ paths:
       security:
         - bearerAuth: []
 
-  # ulasan
+  # Artikel
+  /artikel:
+    post:
+      tags:
+        - Artikel
+      summary: Menambahkan artikel
+      description: Menambahkan artikel baik untuk menu Olah pangan atau Sulap limbah (link dan gambar bisa tidak di isi, atau di isi keduanya)
+      operationId: create-artikel
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                judul:
+                  type: string
+                  default: "Judul artikel"
+                deskripsi: 
+                  type: string
+                  default: "Sapi adalah hewan"
+                menu:
+                  type: string
+                  description: pilih salah satu (olah_pangan / olah_pangan)
+                image:
+                  type: string
+                  format: binary
+                  description: Dapat memasukkan lebih dari 1 gambar
+                link:
+                  type: string
+                  default: "https://youtube.com"
+                  description: dapat memasukan link video atau foto. hanya dapat memasukan 1 link
+                
+      responses:
+        '201':
+          description: Artikel created successfully
+        '404':
+          description: Bad Request
+      security:
+        - bearerAuth: []
+
+  /artikel/limbah:
+    get:
+      tags:
+        - Artikel
+      summary: Mendapatkan artikel limbah
+      description: Mendapatkan semua artikel limbah
+      operationId: get-artikel-limbah
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: "#/components/schemas/Artikel"
+                            - type: object
+                              properties:
+                                menu:
+                                  type: string
+                                  example: "sulap_limbah"
+                                media:
+                                  $ref: "#/components/schemas/Media"
+        '400':
+          description: Bad Request!   
+
+  /artikel/pangan:
+    get:
+      tags:
+        - Artikel
+      summary: Mendapatkan artikel limbah
+      description: Mendapatkan semua artikel limbah
+      operationId: get-artikel-pangan
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: "#/components/schemas/Artikel"
+                            - type: object
+                              properties:
+                                menu:
+                                  type: string
+                                  example: "olah_pangan"
+                                media:
+                                  $ref: "#/components/schemas/Media"
+        '400':
+          description: Bad Request!    
+
+  /artikel/{id}:
+    get:
+      tags:
+        - Artikel
+      summary: Mendapatkan artikel
+      description: Mendapatkan artikel sesuai id
+      operationId: get-artikel-by-id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Get Artikel By Id
+          schema:
+            type : integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 1
+                          id_user:
+                            type: integer
+                            example: 2
+                          judul:
+                            type: string
+                            example: "Sapi racing"
+                          deskripsi:
+                            type: string
+                            example: "Makanan sapi"
+                          menu: 
+                            type: string
+                            example: "sulap_limbah"
+                          created:
+                            type: string
+                            example: "2023-12-28T14:18:05.000Z"
+                          updated:
+                            type: string
+                            example: "2023-12-28T14:18:05.000Z"
+                          user:
+                            type: object
+                            properties:
+                              fullname:
+                                type: string
+                              created:
+                                type: string
+                                example: "2023-12-28T14:18:05.000Z"
+                              updated:
+                                type: string
+                                example: "2023-12-28T14:18:05.000Z"
+                          media: 
+                            $ref: "#/components/schemas/MediaFull"
+                              
+
+        '400':
+          description: Bad Request!
+
+    put:
+      tags:
+        - Artikel
+      summary: Update artikel
+      description: Update artikel baik untuk menu Olah pangan atau Sulap limbah (link dan gambar bisa tidak di isi, atau di isi keduanya)
+      operationId: update-artikel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Get Artikel By Id
+          schema:
+            type : integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                judul:
+                  type: string
+                  default: "Judul artikel"
+                deskripsi: 
+                  type: string
+                  default: "Sapi adalah hewan"
+                menu:
+                  type: string
+                  description: pilih salah satu (olah_pangan / olah_pangan)
+                image:
+                  type: string
+                  format: binary
+                  description: Dapat memasukkan lebih dari 1 gambar
+                link:
+                  type: string
+                  default: "https://youtube.com"
+                  description: dapat memasukan link video atau foto. hanya dapat memasukan 1 link
+                
+      responses:
+        '201':
+          description: Artikel created successfully
+        '404':
+          description: Bad Request
+      security:
+        - bearerAuth: []
+    
+    delete:
+      tags:
+        - Artikel
+      summary: Menghapus artikel 
+      description: Menghapus artikel sesuai id
+      operationId: delete-artikel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Get Artikel By Id
+          schema:
+            type : integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: string
+                        example: null
+                        
+
+        '400':
+          description: Bad Request!
+      security:
+        - bearerAuth: []
+
+
+  # # ulasan
   # /user/registesadr:
   #   get:
   #     tags:
@@ -550,3 +804,74 @@ components:
         email:
           type: string
           example: "mail@mail.com"
+
+    Artikel:
+      title: artikel
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        nama:
+          type: string
+          example: "ads"
+        judul:
+          type: string
+          example: "Sapi muda"
+        deskripsi:
+          type: string
+          example: "Sapi merupakan hewan"
+
+    Media:
+      title: media
+      type: array
+      items: 
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          link: 
+            type: string
+            example: "https://ik.imagekit.io/fathpurn/"
+    
+    Waktu:
+      title: waktu
+      properties:
+        created:
+          type: string
+          example: "2023-12-28T14:18:05.000Z"
+        updated:
+          type: string
+          example: "2023-12-28T14:18:05.000Z"
+    
+
+    MediaFull:
+      title: media-full
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 44
+          id_artikel:
+            type: integer
+            example: 16
+          id_warung:
+            type: integer
+            example: 1
+          id_link:
+            type: string
+            example: "658efb4688c257da337cec86"
+          link:
+            type: string
+            example: "https://ik.imagekit.io/fathpurn/"
+          created:
+            type: string
+            format: date-time
+            example: "2023-12-29T17:00:55.471Z"
+          updated:
+            type: string
+            format: date-time
+            example: "2023-12-29T17:00:55.471Z"
