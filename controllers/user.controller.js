@@ -188,9 +188,54 @@ const authenticate = async (req, res, next) => {
       data: { ...userDetail },
     });
   } catch (error) {
+    res.status(404).json({
+      status: true,
+      message: "Bad Request",
+      err: err.message,
+      data: null,
+    });
     next(error);
   }
 };
+
+const checkAdmin = async (req,res,next) => {
+  try {
+    const { user } = req;
+    
+    const userDetail = await prisma.users.findUnique({
+      where: {
+        id: user.id,
+        role: 'admin', // Filter berdasarkan role 'admin'
+      },
+      include: {
+        kelompok: {
+          select: {
+            nama: true,
+          }
+        }
+      }
+    });
+
+    if(!userDetail) {
+      return res.status(404).json({
+        status: true,
+        message: "Admin only",
+        err: "Only admins can use this command",
+        data: null,
+      });
+    }
+
+    next();
+  } catch (err) {
+    res.status(404).json({
+      status: true,
+      message: "Bad Request",
+      err: err.message,
+      data: null,
+    });
+    next(err);
+  }
+}
 
 // const changePassword = async (req, res, next) => {
 //   try {
@@ -203,5 +248,6 @@ module.exports = {
   register,
   login,
   authenticate,
+  checkAdmin,
 //   changePassword,
 };

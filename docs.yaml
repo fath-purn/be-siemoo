@@ -14,8 +14,8 @@ paths:
     post:
       tags:
         - User
-      summary: Mendapatkan ulasan
-      description: Mendapatkan semua ulasan
+      summary: Register user
+      description: Register user
       operationId: register
       requestBody:
         required: true
@@ -61,8 +61,8 @@ paths:
     post:
       tags:
         - User
-      summary: Mendapatkan ulasan
-      description: Mendapatkan semua ulasan
+      summary: Login user
+      description: Login user
       operationId: login
       requestBody:
         required: true
@@ -86,8 +86,8 @@ paths:
     get:
       tags:
         - User
-      summary: Mendapatkan ulasan
-      description: Mendapatkan semua ulasan
+      summary: Data user
+      description: Data user
       operationId: getUlasan
       security:
         - bearerAuth: []
@@ -96,6 +96,171 @@ paths:
           description: OK!
         '400':
           description: Invalid status value
+
+  # user
+  /kelompok:
+    post:
+      tags:
+        - Kelompok
+      summary: Menambahkan kelompok tani
+      description: Menambahkan kelompok tani
+      operationId: create-kelompok
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nama:
+                  type: string
+                  default: "Kelompok maju tani"
+      responses:
+        '201':
+          description: Kelompok created successfully
+        '404':
+          description: Bad Request
+      security:
+        - bearerAuth: []
+
+    get:
+      tags:
+        - Kelompok
+      summary: Mendapatkan kelompok
+      description: Mendapatkan semua kelompok
+      operationId: getKelompok
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          nama:
+                            type: string
+                            example: "ads"
+        '400':
+          description: Bad Request!
+
+
+  /kelompok/{id}:
+    get:
+      tags:
+        - Kelompok
+      summary: Mendapatkan kelompok
+      description: Mendapatkan kelompok sesuai id
+      operationId: getkelompokById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Get Kelompok By Id
+          schema:
+            type : integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            example: 2
+                          nama:
+                            type: string
+                            example: "ads"
+                          created:
+                            type: string
+                            example: "2023-12-28T14:18:05.000Z"
+                          updated:
+                            type: string
+                            example: "2023-12-28T14:18:05.000Z"
+
+        '400':
+          description: Bad Request!
+
+    put:
+      tags:
+        - Kelompok
+      summary: Mengedit Kelompok 
+      description: Mengedit kelompok sesuai id
+      operationId: update-kelompok
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Get Kelompok By Id
+          schema:
+            type : integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nama:
+                  type: string
+                  default: "Kelompok maju tani"
+      responses:
+        '200':
+          description: OK!
+        '400':
+          description: Bad Request!
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags:
+        - Kelompok
+      summary: Menghapus kelompok 
+      description: Menghapus kelompok sesuai id
+      operationId: delete-kelompok
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Get Kelompok By Id
+          schema:
+            type : integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: string
+                        example: null
+                        
+
+        '400':
+          description: Bad Request!
+      security:
+        - bearerAuth: []
 
   # ulasan
   # /user/registesadr:
@@ -335,45 +500,6 @@ paths:
   #     security:
   #       - bearerAuth: []
         
-  # /admin/login:
-  #   post:
-  #     tags:
-  #       - Admin
-  #     summary: Login admin
-  #     description: Login admin
-  #     operationId: login-admin
-  #     requestBody:
-  #       required: true
-  #       content:
-  #         application/json:
-  #           schema:
-  #             type: object
-  #             properties:
-  #               username:
-  #                 type: string
-  #                 default: "yowwww"
-  #               password:
-  #                 type: string
-  #                 default: "adanya"
-  #     responses:
-  #       '201':
-  #         description: OK!
-  #       '400':
-  #         description: Invalid status value
-  # /admin/whoami:
-  #   get:
-  #     tags:
-  #       - Admin
-  #     summary: Mendapatkan ulasan
-  #     description: Mendapatkan semua ulasan
-  #     operationId: getUlasan
-  #     security:
-  #       - bearerAuth: []
-  #     responses:
-  #       "200":
-  #         description: Successful operation
-  #       '400':
-  #         description: Invalid status value
 
 components:
   securitySchemes:
