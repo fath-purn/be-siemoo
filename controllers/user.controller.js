@@ -49,6 +49,21 @@ const register = async (req, res, next) => {
       });
     }
 
+    const checkKelompok = await prisma.kelompok.findUnique({
+      where: {
+        id: id_kelompok,
+      }
+    })
+
+    if(!checkKelompok) {
+      res.status(404).json({
+        status: true,
+        message: "Bad Request",
+        err: "Kelompok tani tidak ditemukan",
+        data: null,
+      });
+    }
+
     let encryptedPassword = await bcrypt.hash(password, 10);
     let indonesianPhoneNumber = toIndonesianPhoneNumber(no_wa);
 

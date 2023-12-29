@@ -26,20 +26,20 @@ const createKelompok = async (req, res, next) => {
       },
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       status: true,
       message: "Kelompok created successfully",
       err: null,
       data: createdKelompok,
     });
   } catch (err) {
-    res.status(400).json({
+    next(err);
+    return res.status(400).json({
       status: false,
       message: "Bad Request!",
       err: err.message,
       data: null,
     });
-    next(err);
   }
 };
 
@@ -55,20 +55,20 @@ const getAll = async (req, res, next) => {
         }
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       status: true,
       message: "All Kelompok retrieved successfully",
       err: null,
       data: allKelompok,
     });
   } catch (err) {
-    res.status(400).json({
+    next(err);
+    return res.status(400).json({
       status: false,
       message: "Bad Request!",
       err: err.message,
       data: null,
     });
-    next(err);
   }
 };
 
@@ -79,20 +79,29 @@ const getById = async (req, res, next) => {
       where: { id: parseInt(id) },
     });
 
-    res.status(200).json({
+    if(!kelompokById) {
+      return res.status(400).json({
+        status: false,
+        message: "Bad Request!",
+        err: "Artikel tidak ditemukan",
+        data: null,
+      });
+    }
+
+    return res.status(200).json({
       status: true,
       message: "Kelompok retrieved successfully",
       err: null,
       data: kelompokById,
     });
   } catch (err) {
-    res.status(400).json({
+    next(err);
+    return res.status(400).json({
       status: false,
       message: "Bad Request!",
       err: err.message,
       data: null,
     });
-    next(err);
   }
 };
 
@@ -117,20 +126,20 @@ const updateKelompok = async (req, res, next) => {
       data: { nama: value.nama },
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       status: true,
       message: "Kelompok updated successfully",
       err: null,
       data: updatedKelompok,
     });
   } catch (err) {
-    res.status(400).json({
+    next(err);
+    return res.status(400).json({
       status: false,
       message: "Bad Request!",
       err: err.message,
       data: null,
     });
-    next(err);
   }
 };
 
@@ -142,20 +151,20 @@ const deleteKelompok = async (req, res, next) => {
       where: { id: parseInt(id) },
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       status: true,
       message: "Kelompok deleted successfully",
       err: null,
       data: null,
     });
   } catch (err) {
-    res.status(400).json({
+    next(err);
+    return res.status(400).json({
       status: false,
       message: "Bad Request!",
       err: err.message,
       data: null,
     });
-    next(err);
   }
 };
 
