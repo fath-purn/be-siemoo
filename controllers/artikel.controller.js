@@ -183,15 +183,26 @@ const getById = async (req, res, next) => {
     const { id } = req.params;
     const artikelById = await prisma.artikel.findUnique({
       where: { id: parseInt(id) },
-      include: {
+      select: {
+        id: true,
+        judul: true,
+        deskripsi: true,
+        menu: true,
         user: {
           select: {
+            id: true,
             fullname: true,
-            created: true,
-            updated: true,
+            no_wa: true,
           }
         },
-        media: true,
+        media: {
+          select: {
+            id: true,
+            link: true,
+          },
+        },
+        created: true,
+        updated: true,
       },
     });
 
@@ -352,13 +363,13 @@ const updateArtikel = async (req, res, next) => {
       data: updateArtikel,
     });
   } catch (err) {
+    next(err);
     return res.status(400).json({
       status: false,
       message: "Bad Request!",
       err: err.message,
       data: null,
     });
-    next(err);
   }
 };
 
@@ -420,13 +431,13 @@ const deleteArtikel = async (req, res, next) => {
       data: null,
     });
   } catch (err) {
+    next(err);
     return res.status(400).json({
       status: false,
       message: "Bad Request!",
       err: err.message,
       data: null,
     });
-    next(err);
   }
 };
 

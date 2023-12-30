@@ -2,21 +2,24 @@ require("dotenv").config();
 const prisma = require("../libs/prisma");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { registerValidationSchema, loginUserSchema } = require('../validations/user.validation')
+const {
+  registerValidationSchema,
+  loginUserSchema,
+} = require("../validations/user.validation");
 
 function toIndonesianPhoneNumber(phoneNumber) {
-    let digitsOnly = phoneNumber.replace(/\D/g, '');
-  
-    if (digitsOnly.startsWith('0')) {
-      return '+62' + digitsOnly.substring(1);
-    }
-  
-    if (!digitsOnly.startsWith('62')) {
-      return '+62' + digitsOnly;
-    }
-  
-    return digitsOnly;
+  let digitsOnly = phoneNumber.replace(/\D/g, "");
+
+  if (digitsOnly.startsWith("0")) {
+    return "+62" + digitsOnly.substring(1);
   }
+
+  if (!digitsOnly.startsWith("62")) {
+    return "+62" + digitsOnly;
+  }
+
+  return digitsOnly;
+}
 
 // register
 const register = async (req, res, next) => {
@@ -25,7 +28,15 @@ const register = async (req, res, next) => {
       req.body;
 
     const { value, error } = await registerValidationSchema.validateAsync({
-        email, password, fullname, sapi, no_wa, rt, rw, id_kelompok, role
+      email,
+      password,
+      fullname,
+      sapi,
+      no_wa,
+      rt,
+      rw,
+      id_kelompok,
+      role,
     });
 
     if (error) {
@@ -52,10 +63,10 @@ const register = async (req, res, next) => {
     const checkKelompok = await prisma.kelompok.findUnique({
       where: {
         id: id_kelompok,
-      }
-    })
+      },
+    });
 
-    if(!checkKelompok) {
+    if (!checkKelompok) {
       res.status(404).json({
         status: true,
         message: "Bad Request",
@@ -90,13 +101,13 @@ const register = async (req, res, next) => {
       data: users,
     });
   } catch (err) {
-    res.status(404).json({
-        status: true,
-        message: "Bad Request",
-        err: err.message,
-        data: null,
-      });
     next(err);
+    return res.status(404).json({
+      status: true,
+      message: "Bad Request",
+      err: err.message,
+      data: null,
+    });
   }
 };
 
@@ -112,7 +123,7 @@ const login = async (req, res, next) => {
     if (error) {
       return res.status(400).json({
         success: false,
-        message: 'Bad Request',
+        message: "Bad Request",
         err: error.message,
         data: null,
       });
@@ -127,8 +138,8 @@ const login = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'Bad Request',
-        err: 'User not found',
+        message: "Bad Request",
+        err: "User not found",
         data: null,
       });
     }
@@ -138,8 +149,8 @@ const login = async (req, res, next) => {
     if (!isMatch) {
       return res.status(400).json({
         success: false,
-        message: 'Bad Request',
-        err: 'Wrong Email or Password',
+        message: "Bad Request",
+        err: "Wrong Email or Password",
         data: null,
       });
     }
@@ -152,14 +163,14 @@ const login = async (req, res, next) => {
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: '1d',
+      expiresIn: "1d",
     });
 
     delete user.password;
 
     return res.status(200).json({
       success: true,
-      message: 'OK!',
+      message: "OK!",
       err: null,
       data: {
         user: user,
@@ -167,71 +178,100 @@ const login = async (req, res, next) => {
       },
     });
   } catch (err) {
-    res.status(404).json({
-        status: true,
-        message: "Bad Request",
-        err: err.message,
-        data: null,
-      });
     next(err);
+    return res.status(404).json({
+      status: true,
+      message: "Bad Request",
+      err: err.message,
+      data: null,
+    });
   }
 };
 
 const authenticate = async (req, res, next) => {
   try {
     const { user } = req;
-    
-    const userDetail = await prisma.users.findUnique({
-        where: {
-            id: user.id
-        },
-        include: {
-            kelompok: {
-                select: {
-                    nama: true,
-                }
-            }
-        }
-    })
 
-    delete userDetail.password;
-
-    return res.status(200).json({
-      status: true,
-      message: "OK!",
-      err: null,
-      data: { ...userDetail },
-    });
-  } catch (error) {
-    res.status(404).json({
-      status: true,
-      message: "Bad Request",
-      err: err.message,
-      data: null,
-    });
-    next(error);
-  }
-};
-
-const checkAdmin = async (req,res,next) => {
-  try {
-    const { user } = req;
-    
     const userDetail = await prisma.users.findUnique({
       where: {
         id: user.id,
-        role: 'admin', // Filter berdasarkan role 'admin'
       },
       include: {
         kelompok: {
           select: {
             nama: true,
-          }
-        }
-      }
+          },
+        },
+        pengujian: {
+          select: {
+            id: true,
+            hasil: true,
+          },
+          orderBy: {
+            created: "desc",
+          },
+          take: 1,
+        },
+      },
     });
 
-    if(!userDetail) {
+    delete userDetail.password;
+
+    const flattenedUserDetail = {
+      id: userDetail.id,
+      email: userDetail.email,
+      fullname: userDetail.fullname,
+      sapi: userDetail.sapi,
+      no_wa: userDetail.no_wa,
+      rt: userDetail.rt,
+      rw: userDetail.rw,
+      id_kelompok: userDetail.id_kelompok,
+      role: userDetail.role,
+      kelompok: userDetail.kelompok.nama,
+      pengujian: {
+        id: userDetail.pengujian[0].id,
+        hasil: userDetail.pengujian[0].hasil,
+      },
+      created: userDetail.created,
+      updated: userDetail.updated,
+    };
+
+    return res.status(200).json({
+      status: true,
+      message: "OK!",
+      err: null,
+      data: { ...flattenedUserDetail },
+    });
+  } catch (err) {
+    next(err);
+    return res.status(404).json({
+      status: true,
+      message: "Bad Request",
+      err: err.message,
+      data: null,
+    });
+  }
+};
+
+const checkAdmin = async (req, res, next) => {
+  try {
+    const { user } = req;
+
+    const userDetail = await prisma.users.findUnique({
+      where: {
+        id: user.id,
+        role: "admin", // Filter berdasarkan role 'admin'
+      },
+      include: {
+        kelompok: {
+          select: {
+            nama: true,
+          },
+        },
+      },
+    });
+
+    if (!userDetail) {
       return res.status(404).json({
         status: true,
         message: "Admin only",
@@ -242,15 +282,15 @@ const checkAdmin = async (req,res,next) => {
 
     next();
   } catch (err) {
-    res.status(404).json({
+    next(err);
+    return res.status(404).json({
       status: true,
       message: "Bad Request",
       err: err.message,
       data: null,
     });
-    next(err);
   }
-}
+};
 
 // const changePassword = async (req, res, next) => {
 //   try {
@@ -264,5 +304,5 @@ module.exports = {
   login,
   authenticate,
   checkAdmin,
-//   changePassword,
+  //   changePassword,
 };
