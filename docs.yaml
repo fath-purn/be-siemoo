@@ -339,8 +339,8 @@ paths:
     get:
       tags:
         - Artikel
-      summary: Mendapatkan artikel limbah
-      description: Mendapatkan semua artikel limbah
+      summary: Mendapatkan artikel pangan
+      description: Mendapatkan semua artikel pangan
       operationId: get-artikel-pangan
       responses:
         "200":

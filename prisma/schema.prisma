@@ -111,8 +111,8 @@ model Warung {
   nama         String
   harga        Int
   deskripsi    String
-  kuantiti     Int
-  stok         String
+  kuantiti     String
+  stok         Int
   user         Users     @relation(fields: [id_user], references: [id])
   pengujian    Pengujian @relation(fields: [id_pengujian], references: [id])
   Media        Media[]
