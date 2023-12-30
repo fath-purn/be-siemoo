@@ -186,16 +186,16 @@ const getById = async (req, res, next) => {
             no_wa: true,
           },
         },
+        pengujian: {
+            select: {
+                id: true,
+                hasil: true,
+            },
+        },
         Media: {
           select: {
             id: true,
             link: true,
-          },
-        },
-        pengujian: {
-          select: {
-            id: true,
-            hasil: true,
           },
         },
         created: true,

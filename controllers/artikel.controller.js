@@ -192,6 +192,7 @@ const getById = async (req, res, next) => {
           select: {
             id: true,
             fullname: true,
+            no_wa: true,
           }
         },
         media: {
@@ -362,13 +363,13 @@ const updateArtikel = async (req, res, next) => {
       data: updateArtikel,
     });
   } catch (err) {
+    next(err);
     return res.status(400).json({
       status: false,
       message: "Bad Request!",
       err: err.message,
       data: null,
     });
-    next(err);
   }
 };
 

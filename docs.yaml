@@ -52,10 +52,35 @@ paths:
                   type: string
                   default: "pembeli"
       responses:
-        '201':
-          description: OK!
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/UserFull"
+                          - type: object
+                            properties:
+                              created:
+                                type: string
+                                default: "2023-12-28T07:34:45.872Z"
+                              updated:
+                                type: string
+                                default: "2023-12-28T07:34:45.872Z"
+
         '404':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
   
   /user/login:
     post:
@@ -78,10 +103,41 @@ paths:
                   type: string
                   default: "**********"
       responses:
-        '201':
-          description: OK!
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            allOf:
+                              - $ref: "#/components/schemas/UserFull"
+                              - type: object
+                                properties:
+                                  created:
+                                    type: string
+                                    default: "2023-12-28T07:34:45.872Z"
+                                  updated:
+                                    type: string
+                                    default: "2023-12-28T07:34:45.872Z"
+                          token:
+                            type: string
+                            default: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiZW1haWwiOiJhZG1pbkBtYWlsLmNvbSIsImlhdCI6MTcwMzkyMzU1NCwiZXhwIjoxNzA0MDA5OTU0fQ.mC_E7UDvoTVcSZjMMrCfMEE926mbEGlfb_iEbrMATM0"
         '404':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+
   /user/whoami:
     get:
       tags:
@@ -93,9 +149,38 @@ paths:
         - bearerAuth: []
       responses:
         "200":
-          description: OK!
-        '400':
-          description: Invalid status value
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            $ref: "#/components/schemas/UserFull"
+                          kelompok:
+                            type: string
+                            default: "Tidak memiliki kelompok"
+                          pengujian:
+                            $ref: "#/components/schemas/Pengujian"
+                          created:
+                            type: string
+                            default: "2023-12-28T07:34:45.872Z"
+                          updated:
+                            type: string
+                            default: "2023-12-28T07:34:45.872Z"
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
 
   # user
   /kelompok:
@@ -118,8 +203,24 @@ paths:
       responses:
         '201':
           description: Kelompok created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data: 
+                        $ref: "#/components/schemas/Kelompok"
+                          
         '404':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
       security:
         - bearerAuth: []
 
@@ -150,6 +251,12 @@ paths:
                             example: "ads"
         '400':
           description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
 
 
   /kelompok/{id}:
@@ -163,7 +270,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: Get Kelompok By Id
+          description: Id target
           schema:
             type : integer
             format: int64
@@ -178,23 +285,16 @@ paths:
                   - type: object
                     properties:
                       data:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                            example: 2
-                          nama:
-                            type: string
-                            example: "ads"
-                          created:
-                            type: string
-                            example: "2023-12-28T14:18:05.000Z"
-                          updated:
-                            type: string
-                            example: "2023-12-28T14:18:05.000Z"
+                        $ref: "#/components/schemas/Kelompok"
 
         '400':
           description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
 
     put:
       tags:
@@ -206,7 +306,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: Get Kelompok By Id
+          description: Id target
           schema:
             type : integer
             format: int64
@@ -223,8 +323,23 @@ paths:
       responses:
         '200':
           description: OK!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Kelompok"
         '400':
           description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
       security:
         - bearerAuth: []
 
@@ -238,7 +353,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: Get Kelompok By Id
+          description: Id target
           schema:
             type : integer
             format: int64
@@ -259,6 +374,12 @@ paths:
 
         '400':
           description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
       security:
         - bearerAuth: []
 
@@ -298,8 +419,25 @@ paths:
       responses:
         '201':
           description: Artikel created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/ArtikelFull"
+
         '404':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
       security:
         - bearerAuth: []
 
@@ -333,7 +471,13 @@ paths:
                                 media:
                                   $ref: "#/components/schemas/Media"
         '400':
-          description: Bad Request!   
+          description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
 
   /artikel/pangan:
     get:
@@ -365,7 +509,13 @@ paths:
                                 media:
                                   $ref: "#/components/schemas/Media"
         '400':
-          description: Bad Request!    
+          description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
 
   /artikel/{id}:
     get:
@@ -378,7 +528,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: Get Artikel By Id
+          description: Id target
           schema:
             type : integer
             format: int64
@@ -398,9 +548,6 @@ paths:
                           id:
                             type: integer
                             example: 1
-                          id_user:
-                            type: integer
-                            example: 2
                           judul:
                             type: string
                             example: "Sapi racing"
@@ -410,29 +557,26 @@ paths:
                           menu: 
                             type: string
                             example: "sulap_limbah"
+                          user:
+                            allOf:
+                              - $ref: "#/components/schemas/User"
+                          media: 
+                            $ref: "#/components/schemas/Media"
                           created:
                             type: string
                             example: "2023-12-28T14:18:05.000Z"
                           updated:
                             type: string
-                            example: "2023-12-28T14:18:05.000Z"
-                          user:
-                            type: object
-                            properties:
-                              fullname:
-                                type: string
-                              created:
-                                type: string
-                                example: "2023-12-28T14:18:05.000Z"
-                              updated:
-                                type: string
-                                example: "2023-12-28T14:18:05.000Z"
-                          media: 
-                            $ref: "#/components/schemas/MediaFull"
-                              
+                            example: "2023-12-28T14:18:05.000Z"    
 
         '400':
           description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
 
     put:
       tags:
@@ -444,7 +588,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: Get Artikel By Id
+          description: Id target
           schema:
             type : integer
             format: int64
@@ -475,9 +619,25 @@ paths:
                 
       responses:
         '201':
-          description: Artikel created successfully
+          description: Artikel updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/ArtikelFull"
         '404':
           description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
       security:
         - bearerAuth: []
     
@@ -491,7 +651,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: Get Artikel By Id
+          description: Id target
           schema:
             type : integer
             format: int64
@@ -509,11 +669,294 @@ paths:
                         type: string
                         example: null
                         
-
         '400':
           description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
       security:
         - bearerAuth: []
+
+  # Artikel
+  /warung:
+    post:
+      tags:
+        - Warung
+      summary: Menambahkan warung
+      description: Menambahkan warung
+      operationId: create-warung
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                nama:
+                  type: string
+                  default: "Susu segar"
+                harga: 
+                  type: integer
+                  default: 10000
+                deskripsi:
+                  type: string
+                  default: "Susu yang sangat amat fresh"
+                stok:
+                  type: integer
+                  default: 2
+                kuantiti:
+                  type: string
+                  default: "liter"
+                image:
+                  type: string
+                  format: binary
+                  description: Dapat memasukkan lebih dari 1 gambar
+                link:
+                  type: string
+                  default: "https://youtube.com"
+                  description: dapat memasukan link video atau foto. hanya dapat memasukan 1 link
+      responses:
+        '201':
+          description: Artikel created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/WarungFull"
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+      security:
+        - bearerAuth: []
+  
+    get:
+      tags:
+        - Warung
+      summary: Mendapatkan warung pangan
+      description: Mendapatkan semua warung pangan
+      operationId: get-warung-pangan
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            warung:
+                              $ref: "#/components/schemas/Warung"
+                            user:
+                              $ref: "#/components/schemas/User"
+                            pengujian:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  default: 1
+                                hasil:
+                                  type: string
+                                  default: "SangatBaik"
+                            media:
+                              $ref: "#/components/schemas/Media"
+                            created:
+                              type: string
+                              example: "2023-12-28T14:18:05.000Z"
+                            updated:
+                              type: string
+                              example: "2023-12-28T14:18:05.000Z"
+        '400':
+          description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+
+  /warung/{id}:
+    get:
+      tags:
+        - Warung
+      summary: Mendapatkan warung
+      description: Mendapatkan warung sesuai id
+      operationId: get-warung-by-id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id target
+          schema:
+            type : integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Warung"
+                      user:
+                        $ref: "#/components/schemas/User"
+                      pengujian:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            default: 1
+                          hasil:
+                            type: string
+                            default: "SangatBaik"
+                      media:
+                        $ref: "#/components/schemas/Media"
+                      created:
+                        type: string
+                        example: "2023-12-28T14:18:05.000Z"
+                      updated:
+                        type: string
+                        example: "2023-12-28T14:18:05.000Z" 
+                              
+        '400':
+          description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+
+    put:
+      tags:
+        - Warung
+      summary: Update warung
+      description: Update warung
+      operationId: update-warung
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id target
+          schema:
+            type : integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                nama:
+                  type: string
+                  default: "Susu segar"
+                harga: 
+                  type: integer
+                  default: 10000
+                deskripsi:
+                  type: string
+                  default: "Susu yang sangat amat fresh"
+                stok:
+                  type: integer
+                  default: 2
+                kuantiti:
+                  type: string
+                  default: "liter"
+                image:
+                  type: string
+                  format: binary
+                  description: Dapat memasukkan lebih dari 1 gambar
+                link:
+                  type: string
+                  default: "https://youtube.com"
+                  description: dapat memasukan link video atau foto. hanya dapat memasukan 1 link
+                
+      responses:
+        '201':
+          description: Artikel update successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/WarungFull"
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags:
+        - Warung
+      summary: Menghapus artikel 
+      description: Menghapus artikel sesuai id
+      operationId: delete-artikel
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id target
+          schema:
+            type : integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: string
+                        example: null
+                        
+        '400':
+          description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+      security:
+        - bearerAuth: []
+
 
 
   # # ulasan
@@ -775,6 +1218,24 @@ components:
           err:
             type: object
             example: null
+    
+    ErrorResponse:
+        title: ErrorResponse
+        type: object
+        properties:
+          status:
+            type: boolean
+            example: true
+          message:
+            type: string
+            example: "Bad Request!"
+          err:
+            type: object
+            example: null
+          data:
+            type: object
+            example: null
+
     Pagination:
       title: Pagination
       type: object
@@ -812,15 +1273,93 @@ components:
         id:
           type: integer
           example: 2
-        nama:
-          type: string
-          example: "ads"
         judul:
           type: string
           example: "Sapi muda"
         deskripsi:
           type: string
           example: "Sapi merupakan hewan"
+    
+    Pengujian:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        judul:
+          type: string
+          example: "Baik"
+    
+    Kelompok:
+      type: object
+      properties:
+        id: 
+          type: integer
+          default: 1
+        nama: 
+          type: string
+          default: "Kelompok maju tani"
+        created:
+          type: string
+          default: "2023-12-28T07:34:45.872Z"
+        updated:
+          type: string
+          default: "2023-12-28T07:34:45.872Z"
+    
+    UserFull:
+      type: object
+      properties:
+        id:
+          type: integer
+          default: 3
+        email:
+          type: string
+          default: "admin@mail.com"
+        fullname:
+          type: string
+          default: "namasaku ini"
+        sapi:
+          type: integer
+          default: 15
+        no_wa:
+          type: string
+          default: "+62851515151"
+        rt:
+          type: string
+          default: "05"
+        rw:
+          type: string
+          default: "02"
+        id_kelompok:
+          type: integer
+          default: 999
+        role:
+          type: string
+          default: "admin"
+        
+    
+    Warung:
+      title: warung
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        nama:
+          type: string
+          example: "ads"
+        harga:
+          type: integer
+          example: 10000
+        deskripsi:
+          type: string
+          example: "Sapi merupakan hewan"
+        kuantiti:
+          type: string
+          example: "liter"
+        stok:
+          type: integer
+          example: 3
 
     Media:
       title: media
@@ -844,6 +1383,19 @@ components:
         updated:
           type: string
           example: "2023-12-28T14:18:05.000Z"
+    
+    User:
+      title: user
+      properties:
+        id:
+          type: integer
+          example: 1
+        fullname:
+          type: string
+          example: "Fatkhurrohman Purnomo"
+        no_wa:
+          type: integer
+          example: +625858585858
     
 
     MediaFull:
@@ -875,3 +1427,62 @@ components:
             type: string
             format: date-time
             example: "2023-12-29T17:00:55.471Z"
+
+    ArtikelFull:
+      title: artikel
+      properties:
+        id:
+          type: integer
+          example: 22
+        id_user:
+          type: integer
+          example: 3
+        judul:
+          type: string
+          example: "Sapi super"
+        deskripsi:
+          type: string
+          example: "ini adalah"
+        menu:
+          type: string
+          example: "olah_pangan"
+        created:
+          type: string
+          example: "2023-12-30T14:47:26.710Z"
+        updated:
+          type: string
+          example: "2023-12-30T14:47:26.710Z"
+    
+    WarungFull:
+      title: warung
+      properties:
+        id:
+          type: integer
+          example: 11
+        id_user:
+          type: integer
+          example: 3
+        id_pengujian:
+          type: integer
+          example: 997
+        nama:
+          type: string
+          example: "dagangn"
+        harga:
+          type: integer
+          example: 1000
+        deskripsi:
+          type: string
+          example: "susu enak"
+        kuantiti:
+          type: string
+          example: "Liter"
+        stok:
+          type: integer
+          example: 3
+        created:
+          type: string
+          example: "2023-12-30T13:40:28.606Z"
+        updated:
+          type: string
+          example: "2023-12-30T13:40:28.606Z"
