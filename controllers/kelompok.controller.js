@@ -83,7 +83,7 @@ const getById = async (req, res, next) => {
       return res.status(400).json({
         status: false,
         message: "Bad Request!",
-        err: "Artikel tidak ditemukan",
+        err: "Kelompok tidak ditemukan",
         data: null,
       });
     }
