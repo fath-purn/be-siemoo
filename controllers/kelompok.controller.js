@@ -112,6 +112,19 @@ const updateKelompok = async (req, res, next) => {
 
     const { error, value } = kelompokSchema.validate({ nama });
 
+    const checkId = await prisma.kelompok.findUnique({
+      where: {id: Number(id)},
+    });
+
+    if (!checkId) {
+      return res.status(400).json({
+        status: false,
+        message: "Bad Request!",
+        err: "Kelompok tidak ditemukan",
+        data: null,
+      });
+    }
+
     if (error) {
       return res.status(400).json({
         status: false,
@@ -146,6 +159,19 @@ const updateKelompok = async (req, res, next) => {
 const deleteKelompok = async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    const checkId = await prisma.kelompok.findUnique({
+      where: {id: Number(id)},
+    });
+
+    if (!checkId) {
+      return res.status(400).json({
+        status: false,
+        message: "Bad Request!",
+        err: "Kelompok tidak ditemukan",
+        data: null,
+      });
+    }
 
     const deletedKelompok = await prisma.kelompok.delete({
       where: { id: parseInt(id) },
