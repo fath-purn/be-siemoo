@@ -292,6 +292,35 @@ const checkAdmin = async (req, res, next) => {
   }
 };
 
+const getAll = async (req,res,next) => {
+  try {
+    const getAll = await prisma.users.findMany({
+      where:{
+        NOT: {
+          role: "admin",
+        }
+      }
+    })
+
+    delete getAll.password
+    
+    return res.status(200).json({
+      success: true,
+      message: "OK!",
+      err: null,
+      data: getAll,
+    }); 
+  } catch (err) {
+    next(err);
+    return res.status(404).json({
+      status: false,
+      message: "Bad Request",
+      err: err.message,
+      data: null,
+    })
+  }
+}
+
 // const changePassword = async (req, res, next) => {
 //   try {
 //   } catch (err) {
@@ -304,5 +333,6 @@ module.exports = {
   login,
   authenticate,
   checkAdmin,
+  getAll,
   //   changePassword,
 };
