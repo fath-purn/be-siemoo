@@ -182,7 +182,47 @@ paths:
                   - $ref: "#/components/schemas/ErrorResponse"
                   - type: object
 
-  # user
+  /user:
+    get:
+      tags:
+        - User
+      summary: Mendapatkan user
+      description: Mendapatkan semua user
+      operationId: get-user
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: "#/components/schemas/UserFull"
+                            - type: object
+                              properties:
+                                created:
+                                  type: string
+                                  example: "2023-12-28T07:34:45.872Z"
+                                updated:
+                                  type: string
+                                  example: "2023-12-28T07:34:45.872Z"
+
+        '400':
+          description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+
+  # kelompok
   /kelompok:
     post:
       tags:
@@ -680,7 +720,7 @@ paths:
       security:
         - bearerAuth: []
 
-  # Artikel
+  # warung
   /warung:
     post:
       tags:
@@ -893,7 +933,7 @@ paths:
                   type: string
                   default: "https://youtube.com"
                   description: dapat memasukan link video atau foto. hanya dapat memasukan 1 link
-                
+
       responses:
         '201':
           description: Artikel update successfully
@@ -921,9 +961,318 @@ paths:
     delete:
       tags:
         - Warung
-      summary: Menghapus artikel 
-      description: Menghapus artikel sesuai id
-      operationId: delete-artikel
+      summary: Menghapus warung 
+      description: Menghapus warung sesuai id
+      operationId: delete-warung
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id target
+          schema:
+            type : integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: string
+                        example: null
+                        
+        '400':
+          description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+      security:
+        - bearerAuth: []
+  
+  # pengujian
+  /pengujian:
+    post:
+      tags:
+        - Pengujian
+      summary: Menambahkan pengujian
+      description: Menambahkan pengujian
+      operationId: create-pengujian
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_user:
+                  type: number
+                  default: 1
+                fat: 
+                  type: integer
+                  default: 1.1
+                snf: 
+                  type: integer
+                  default: 1.5
+                protein: 
+                  type: integer
+                  default: 17
+                ph: 
+                  type: integer
+                  default: 1
+      responses:
+        '201':
+          description: Artikel created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/PengujianFull"
+                          - type: object
+                            properties:
+                              created:
+                                type: string
+                                example: "2023-12-30T13:40:28.606Z"
+                              updated:
+                                type: string
+                                example: "2023-12-30T13:40:28.606Z"
+
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+      security:
+        - bearerAuth: []
+  
+    get:
+      tags:
+        - Pengujian
+      summary: Mendapatkan pengujian pangan
+      description: Mendapatkan semua pengujian pangan
+      operationId: get-pengujian-pangan
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: "#/components/schemas/PengujianFull"
+                            - type: object
+                              properties:
+                                user:
+                                  $ref: "#/components/schemas/User"
+
+        '400':
+          description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+
+  /pengujian/user/{id}:
+    get:
+      tags:
+        - Pengujian
+      summary: Mendapatkan pengujian
+      description: Mendapatkan pengujian sesuai id
+      operationId: get-pengujian-by-id-user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id target
+          schema:
+            type : integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/UserFull"
+                          - type: object
+                            properties:
+                              created:
+                                type: string
+                                example: "2023-12-28T14:18:05.000Z"
+                              updated:
+                                type: string
+                                example: "2023-12-28T14:18:05.000Z"
+                              pengujian:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    pengujian:
+                                      $ref: '#/components/schemas/PengujianFull'
+                              
+        '400':
+          description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+
+  /pengujian/{id}:
+    get:
+      tags:
+        - Pengujian
+      summary: Mendapatkan pengujian
+      description: Mendapatkan pengujian sesuai id
+      operationId: get-pengujian-by-id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id target
+          schema:
+            type : integer
+            format: int64
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/PengujianFull"
+                          - type: object
+                            properties:
+                              user:
+                                $ref: '#/components/schemas/User'
+                              created:
+                                type: string
+                                example: "2023-12-28T14:18:05.000Z"
+                              updated:
+                                type: string
+                                example: "2023-12-28T14:18:05.000Z" 
+
+
+                          
+                              
+        '400':
+          description: Bad Request!
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+
+    put:
+      tags:
+        - Pengujian
+      summary: Update pengujian
+      description: Update pengujian
+      operationId: update-pengujian
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id target
+          schema:
+            type : integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_user:
+                  type: number
+                  default: 1
+                fat: 
+                  type: integer
+                  default: 1.1
+                snf: 
+                  type: integer
+                  default: 1.5
+                protein: 
+                  type: integer
+                  default: 17
+                ph: 
+                  type: integer
+                  default: 1
+      responses:
+        '201':
+          description: Artikel created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: "#/components/schemas/PengujianFull"
+                          - type: object
+                            properties:
+                              created:
+                                type: string
+                                example: "2023-12-30T13:40:28.606Z"
+                              updated:
+                                type: string
+                                example: "2023-12-30T13:40:28.606Z"
+        '404':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - type: object
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags:
+        - Pengujian
+      summary: Menghapus pengujian 
+      description: Menghapus pengujian sesuai id
+      operationId: delete-pengujian
       parameters:
         - name: id
           in: path
@@ -957,8 +1306,7 @@ paths:
       security:
         - bearerAuth: []
 
-
-
+  
   # # ulasan
   # /user/registesadr:
   #   get:
@@ -1486,3 +1834,55 @@ components:
         updated:
           type: string
           example: "2023-12-30T13:40:28.606Z"
+      
+
+    PengujianMid:
+      title: warung
+      properties:
+        id:
+          type: integer
+          example: 11
+        id_user:
+          type: integer
+          example: 3
+        fat:
+          type: integer
+          example: 1.3
+        snf:
+          type: integer
+          example: 1.5
+        protein:
+          type: integer
+          example: 4
+        ph:
+          type: integer
+          example: 3
+
+    PengujianFull:
+      title: warung
+      properties:
+        id:
+          type: integer
+          example: 11
+        id_user:
+          type: integer
+          example: 3
+        fat:
+          type: integer
+          example: 1.3
+        snf:
+          type: integer
+          example: 1.5
+        protein:
+          type: integer
+          example: 4
+        ph:
+          type: integer
+          example: 3
+        hasil:
+          type: string
+          example: "SangatBaik"
+        message:
+          type: string
+          example: "Perlu makan tambahan"
+        
