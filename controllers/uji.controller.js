@@ -18,8 +18,115 @@ const createPengujian = async (req, res, next) => {
     }
 
     const { id_user, fat, snf, protein, ph } = value;
-    let hasilPengujian = "Baik";
-    let messagePengujian = "Perlu makan tambahan";
+
+    const calculatePengujianResult = (fat, snf, protein, ph) => {
+      const nilaiFat = 3; // persen
+      const nilaiSnf = 7.8; // persen
+      const nilaiProtein = 2.8; // persen
+      const nilaiMinPh = 6.3; // int
+      const nilaiMaxPh = 6.8; // int
+
+      let hasil = null;
+      let message = null;
+
+      if (
+        fat > nilaiFat &&
+        snf > nilaiSnf &&
+        protein > nilaiProtein &&
+        ph >= nilaiMinPh &&
+        ph <= nilaiMaxPh
+      ) {
+        hasil = "SangatBaik";
+        message =
+          "Susu sapi perah sangat baik. Pertahankan pakan dan kondisi lingkungan yang baik!";
+      } else if (
+        fat > nilaiFat &&
+        snf > nilaiSnf &&
+        protein > nilaiProtein &&
+        ph < nilaiMinPh
+      ) {
+        hasil = "Baik";
+        message =
+          "Susu sapi perah baik. Namun, perhatikan bahwa pH sedikit rendah. Pertimbangkan peningkatan pH dalam pakan.";
+      } else if (
+        fat > nilaiFat &&
+        snf > nilaiSnf &&
+        protein > nilaiProtein &&
+        ph > nilaiMaxPh
+      ) {
+        hasil = "Baik";
+        message =
+          "Susu sapi perah baik. Namun, perhatikan bahwa pH sedikit tinggi. Pertimbangkan penurunan pH dalam pakan.";
+      } else if (fat > nilaiFat && snf > nilaiSnf && protein > nilaiProtein) {
+        hasil = "Baik";
+        message = "Susu sapi perah baik. Tetap pertahankan pakan yang baik!";
+      } else if (
+        fat > nilaiFat &&
+        snf > nilaiSnf &&
+        protein < nilaiProtein &&
+        ph >= nilaiMinPh &&
+        ph <= nilaiMaxPh
+      ) {
+        hasil = "Normal";
+        message =
+          "Kualitas protein susu sapi perah normal. Tetap pertahankan pakan yang baik!";
+      } else if (fat > nilaiFat && snf > nilaiSnf && protein < nilaiProtein) {
+        hasil = "Buruk";
+        message =
+          "Kandungan protein susu sapi perah rendah. Perlu pertimbangan dalam formulasi pakan.";
+      } else if (
+        fat > nilaiFat &&
+        snf < nilaiSnf &&
+        protein > nilaiProtein &&
+        ph >= nilaiMinPh &&
+        ph <= nilaiMaxPh
+      ) {
+        hasil = "Normal";
+        message =
+          "Kandungan solid non-fat (SNF) susu sapi perah normal. Tetap pertahankan pakan yang baik!";
+      } else if (fat > nilaiFat && snf < nilaiSnf && protein > nilaiProtein) {
+        hasil = "Buruk";
+        message =
+          "Kandungan solid non-fat (SNF) susu sapi perah rendah. Perlu pertimbangan dalam formulasi pakan.";
+      } else if (
+        fat < nilaiFat &&
+        snf > nilaiSnf &&
+        protein > nilaiProtein &&
+        ph >= nilaiMinPh &&
+        ph <= nilaiMaxPh
+      ) {
+        hasil = "Normal";
+        message =
+          "Kandungan lemak (fat) susu sapi perah normal. Tetap pertahankan pakan yang baik!";
+      } else if (fat < nilaiFat && snf > nilaiSnf && protein > nilaiProtein) {
+        hasil = "Buruk";
+        message =
+          "Kandungan lemak (fat) susu sapi perah rendah. Perlu pertimbangan dalam formulasi pakan.";
+      } else {
+        hasil = "Normal";
+        message =
+          "Kualitas susu sapi perah dalam kondisi normal. Tetap pertahankan pakan yang baik!";
+      }
+    
+      return { hasil, message };
+    };
+
+    // Example usage:
+    const { hasil, message } = calculatePengujianResult(
+      fat,
+      snf,
+      protein,
+      ph
+    );
+    // console.log(`Hasil Pengujian: ${hasil}`);
+    // console.log(`Pesan untuk peternak: ${message}`);
+
+    // return res.status(201).json({
+    //   status: true,
+    //   message: "Pengujian created successfully",
+    //   err: null,
+    //   data: { hasil, message },
+    // });
 
     const createdPengujian = await prisma.pengujian.create({
       data: {
@@ -28,8 +135,8 @@ const createPengujian = async (req, res, next) => {
         snf,
         protein,
         ph,
-        hasil: hasilPengujian,
-        message: messagePengujian,
+        hasil: hasil,
+        message: message,
       },
     });
 
@@ -153,9 +260,9 @@ const getAllPengujianByUser = async (req, res, next) => {
       },
       include: {
         pengujian: {
-            orderBy: {
-                created: 'desc',
-            }
+          orderBy: {
+            created: "desc",
+          },
         },
       },
     });
