@@ -6,14 +6,16 @@ const {
   getAllPengujianByUser,
   updatePengujian,
   deletePengujian,
+  getPengujianByUser,
 } = require("../controllers/uji.controller");
 const { checkAdmin } = require("../controllers/user.controller");
 const verifyToken = require("../libs/verifyToken");
 
 router.post("/", verifyToken, checkAdmin, createPengujian);
-router.get("/", getAll);
-router.get("/:id", getById);
-router.get("/user/:id", getAllPengujianByUser);
+router.get("/", verifyToken, getAll);
+router.get("/me", verifyToken, getAllPengujianByUser);
+router.get("/me/all", verifyToken, getPengujianByUser);
+router.get("/:id", verifyToken, getById);
 router.put("/:id", verifyToken, checkAdmin, updatePengujian);
 router.delete("/:id", verifyToken, checkAdmin, deletePengujian);
 

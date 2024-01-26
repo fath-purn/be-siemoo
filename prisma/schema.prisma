@@ -10,6 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// model Ngarang {
+//   id          Int         @id @default(autoincrement())
+//   email       String      @unique
+// }
+
 enum Role {
   peternak
   admin
@@ -19,6 +24,7 @@ enum Role {
 enum Menu {
   olah_pangan
   sulap_limbah
+  edukasi
 }
 
 enum Hasil {
@@ -78,6 +84,7 @@ model Pengujian {
   ph      Float
   hasil   Hasil
   message String
+  rating  Int
   user    Users    @relation(fields: [id_user], references: [id])
   created DateTime @default(now())
   updated DateTime @updatedAt
