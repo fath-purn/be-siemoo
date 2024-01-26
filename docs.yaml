@@ -3,10 +3,14 @@ info:
   title: SI-EMOO
   description: This is a sample SI-EMOO server.
   version: '1.0.0'
+
+  
 servers:
   - url: https://siemoo.vercel.app/api/v1
     description: Development server
   - url: http://localhost:3000/api/v1
+    description: local server
+  - url: http://$APP_HOST:$PORT/api/v1
     description: local server
 paths:
   # user

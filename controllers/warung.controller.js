@@ -187,10 +187,10 @@ const getById = async (req, res, next) => {
           },
         },
         pengujian: {
-            select: {
-                id: true,
-                hasil: true,
-            },
+          select: {
+            id: true,
+            hasil: true,
+          },
         },
         Media: {
           select: {
@@ -330,8 +330,7 @@ const updateWarung = async (req, res, next) => {
 
     // panggil fungsi uploadFiles untuk imagekit
     if ((req.files && req.files.length > 0) || link) {
-        await deleteGambar(checkMedia);
-        console.log('bawah');
+      await deleteGambar(checkMedia);
 
       // delete gambar di database
       await prisma.media.deleteMany({
@@ -376,7 +375,7 @@ const updateWarung = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
-    console.log(err)
+    console.log(err);
     return res.status(400).json({
       status: false,
       message: "Bad Request",

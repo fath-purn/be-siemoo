@@ -178,6 +178,46 @@ const getAllPangan = async (req, res, next) => {
   }
 };
 
+const getAllEdukasi = async (req, res, next) => {
+  try {
+    const allArtikel = await prisma.artikel.findMany({
+      where: {
+        menu: "edukasi",
+      },
+      select: {
+        id: true,
+        judul: true,
+        deskripsi: true,
+        menu: true,
+        media: {
+          select: {
+            id: true,
+            link: true,
+          },
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+    });
+
+    return res.status(200).json({
+      status: true,
+      message: "All Artikel retrieved successfully",
+      err: null,
+      data: allArtikel,
+    });
+  } catch (err) {
+    next(err);
+    return res.status(400).json({
+      status: false,
+      message: "Bad Request!",
+      err: err.message,
+      data: null,
+    });
+  }
+};
+
 const getById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -448,4 +488,5 @@ module.exports = {
   getById,
   updateArtikel,
   deleteArtikel,
+  getAllEdukasi,
 };

@@ -21,6 +21,16 @@ function toIndonesianPhoneNumber(phoneNumber) {
   return digitsOnly;
 }
 
+const parseDate = (date) => {
+  const options = {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  };
+
+  return new Intl.DateTimeFormat("id-ID", options).format(date);
+};
+
 // register
 const register = async (req, res, next) => {
   try {
@@ -229,11 +239,17 @@ const authenticate = async (req, res, next) => {
       role: userDetail.role,
       kelompok: userDetail.kelompok.nama,
       pengujian: {
-        id: userDetail.pengujian[0].id,
-        hasil: userDetail.pengujian[0].hasil,
+        id:
+          userDetail.pengujian && userDetail.pengujian.length > 0
+            ? userDetail.pengujian[0].id
+            : null,
+        hasil:
+          userDetail.pengujian && userDetail.pengujian.length > 0
+            ? userDetail.pengujian[0].hasil
+            : null,
       },
-      created: userDetail.created,
-      updated: userDetail.updated,
+      created: parseDate(userDetail.created),
+      updated: parseDate(userDetail.updated),
     };
 
     return res.status(200).json({
@@ -292,24 +308,63 @@ const checkAdmin = async (req, res, next) => {
   }
 };
 
-const getAll = async (req,res,next) => {
+const checkPenjual = async (req, res, next) => {
+  try {
+    const { user } = req;
+
+    const userDetail = await prisma.users.findUnique({
+      where: {
+        id: user.id,
+        role: "peternak", // Filter berdasarkan role 'admin'
+      },
+      include: {
+        kelompok: {
+          select: {
+            nama: true,
+          },
+        },
+      },
+    });
+
+    if (!userDetail) {
+      return res.status(404).json({
+        status: true,
+        message: "Admin only",
+        err: "Only admins can use this command",
+        data: null,
+      });
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+    return res.status(404).json({
+      status: true,
+      message: "Bad Request",
+      err: err.message,
+      data: null,
+    });
+  }
+};
+
+const getAll = async (req, res, next) => {
   try {
     const getAll = await prisma.users.findMany({
-      where:{
+      where: {
         NOT: {
           role: "admin",
-        }
-      }
-    })
+        },
+      },
+    });
 
-    delete getAll.password
-    
+    delete getAll.password;
+
     return res.status(200).json({
       success: true,
       message: "OK!",
       err: null,
       data: getAll,
-    }); 
+    });
   } catch (err) {
     next(err);
     return res.status(404).json({
@@ -317,9 +372,101 @@ const getAll = async (req,res,next) => {
       message: "Bad Request",
       err: err.message,
       data: null,
-    })
+    });
   }
-}
+};
+
+const dashboard = async (req, res, next) => {
+  try {
+    const { user } = req;
+
+    const allArtikel = await prisma.artikel.findMany({
+      select: {
+        id: true,
+        judul: true,
+        deskripsi: true,
+        menu: true,
+        media: {
+          select: {
+            id: true,
+            link: true,
+          },
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+      take: 5,
+    });
+
+    const userDetail = await prisma.users.findUnique({
+      where: {
+        id: user.id,
+      },
+      include: {
+        kelompok: {
+          select: {
+            nama: true,
+          },
+        },
+        pengujian: {
+          orderBy: {
+            created: "desc",
+          },
+          take: 1,
+        },
+      },
+    });
+
+    delete userDetail.password;
+
+    const { pengujian } = userDetail;
+    const pengujianResult = {
+      pengujian:
+        pengujian && pengujian.length > 0
+          ? {
+              id: pengujian[0].id,
+              id_user: pengujian[0].id_user,
+              fat: pengujian[0].fat,
+              snf: pengujian[0].snf,
+              protein: pengujian[0].protein,
+              ph: pengujian[0].ph,
+              rating: pengujian[0].rating,
+              hasil: pengujian[0].hasil,
+              message: pengujian[0].message,
+              created: parseDate(pengujian[0].created),
+              updated: parseDate(pengujian[0].updated),
+            }
+          : {
+              id: null,
+              id_user: null,
+              fat: null,
+              snf: null,
+              protein: null,
+              ph: null,
+              hasil: null,
+              message: null,
+              created: null,
+              updated: null,
+            },
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "OK!",
+      err: null,
+      data: { artikel: allArtikel, pengujian: pengujianResult.pengujian },
+    });
+  } catch (err) {
+    next(err);
+    return res.status(404).json({
+      status: false,
+      message: "Bad Request",
+      err: err.message,
+      data: null,
+    });
+  }
+};
 
 // const changePassword = async (req, res, next) => {
 //   try {
@@ -334,5 +481,7 @@ module.exports = {
   authenticate,
   checkAdmin,
   getAll,
+  dashboard,
+  checkPenjual,
   //   changePassword,
 };
