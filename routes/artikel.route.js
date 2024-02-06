@@ -3,6 +3,7 @@ const {
     createArtikel,
     getAllPangan,
     getAllLimbah,
+    getAll,
     getById,
     updateArtikel,
     deleteArtikel,
@@ -16,6 +17,7 @@ router.post("/", upload.array("image"), verifyToken, checkAdmin, createArtikel);
 router.get("/pangan", getAllPangan);
 router.get("/limbah", getAllLimbah);
 router.get("/edukasi", getAllEdukasi);
+router.get("/", getAll);
 router.get("/:id", getById);
 router.put("/:id", upload.array("image"), verifyToken, checkAdmin, updateArtikel);
 router.delete("/:id", verifyToken, checkAdmin, deleteArtikel);

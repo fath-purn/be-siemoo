@@ -355,9 +355,25 @@ const getAll = async (req, res, next) => {
           role: "admin",
         },
       },
+      select: {
+        id: true,
+        email: true,
+        fullname: true,
+        sapi: true,
+        no_wa: true,
+        rt: true,
+        rw: true,
+        kelompok: {
+          select: {
+            id: true,
+            nama: true,
+          }
+        },
+        role: true,
+        created: true,
+        updated: true,
+      }
     });
-
-    delete getAll.password;
 
     return res.status(200).json({
       success: true,

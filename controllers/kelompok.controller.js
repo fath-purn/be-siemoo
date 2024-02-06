@@ -45,15 +45,45 @@ const createKelompok = async (req, res, next) => {
 
 const getAll = async (req, res, next) => {
   try {
-    const allKelompok = await prisma.kelompok.findMany({
+    // Extract search query from request parameters
+    const { search } = req.query;
+
+    let allKelompok = null;
+
+    // Check if a search query is provided
+    if (search) {
+      allKelompok = await prisma.kelompok.findMany({
+        where: {
+          OR: [
+            {
+              nama: {
+                contains: search,
+                mode: 'insensitive', // Case-insensitive search
+              },
+            },
+            // Add more fields for searching if needed
+          ],
+        },
         select: {
-            id: true,
-            nama: true,
+          id: true,
+          nama: true,
         },
         orderBy: {
-            id: 'desc',
-        }
-    });
+          id: 'desc',
+        },
+      });
+    } else {
+      // If no search query, retrieve all kelompok items
+      allKelompok = await prisma.kelompok.findMany({
+        select: {
+          id: true,
+          nama: true,
+        },
+        orderBy: {
+          id: 'desc',
+        },
+      });
+    }
 
     return res.status(200).json({
       status: true,
@@ -71,6 +101,7 @@ const getAll = async (req, res, next) => {
     });
   }
 };
+
 
 const getById = async (req, res, next) => {
   try {

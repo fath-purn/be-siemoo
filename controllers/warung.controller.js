@@ -115,43 +115,104 @@ const createWarung = async (req, res, next) => {
 
 const getAll = async (req, res, next) => {
   try {
-    const warung = await prisma.warung.findMany({
-      select: {
-        id: true,
-        nama: true,
-        harga: true,
-        deskripsi: true,
-        kuantiti: true,
-        stok: true,
-        user: {
-          select: {
-            id: true,
-            fullname: true,
-            no_wa: true,
-          },
+    // Extract search query from request parameters
+    const { search } = req.query;
+
+    let warung = null;
+
+    // Check if a search query is provided
+    if (search) {
+      warung = await prisma.warung.findMany({
+        where: {
+          OR: [
+            {
+              nama: {
+                contains: search,
+                mode: 'insensitive', // Case-insensitive search
+              },
+            },
+            {
+              deskripsi: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+            // Add more fields for searching if needed
+          ],
         },
-        pengujian: {
-          select: {
-            id: true,
-            hasil: true,
+        select: {
+          id: true,
+          nama: true,
+          harga: true,
+          deskripsi: true,
+          kuantiti: true,
+          stok: true,
+          user: {
+            select: {
+              id: true,
+              fullname: true,
+              no_wa: true,
+            },
           },
-        },
-        Media: {
-          select: {
-            id: true,
-            link: true,
+          pengujian: {
+            select: {
+              id: true,
+              hasil: true,
+            },
           },
+          Media: {
+            select: {
+              id: true,
+              link: true,
+            },
+          },
+          created: true,
+          updated: true,
         },
-        created: true,
-        updated: true,
-      },
-      orderBy: {
-        created: "desc",
-      },
-    });
+        orderBy: {
+          created: "desc",
+        },
+      });
+    } else {
+      // If no search query, retrieve all warung items
+      warung = await prisma.warung.findMany({
+        select: {
+          id: true,
+          nama: true,
+          harga: true,
+          deskripsi: true,
+          kuantiti: true,
+          stok: true,
+          user: {
+            select: {
+              id: true,
+              fullname: true,
+              no_wa: true,
+            },
+          },
+          pengujian: {
+            select: {
+              id: true,
+              hasil: true,
+            },
+          },
+          Media: {
+            select: {
+              id: true,
+              link: true,
+            },
+          },
+          created: true,
+          updated: true,
+        },
+        orderBy: {
+          created: "desc",
+        },
+      });
+    }
 
     return res.status(200).json({
-      status: false,
+      status: true,
       message: "OK!",
       err: null,
       data: warung,
@@ -166,6 +227,7 @@ const getAll = async (req, res, next) => {
     });
   }
 };
+
 
 const getById = async (req, res, next) => {
   try {
