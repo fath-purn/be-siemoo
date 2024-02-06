@@ -218,6 +218,88 @@ const getAllEdukasi = async (req, res, next) => {
   }
 };
 
+const getAll = async (req, res, next) => {
+  try {
+    // Extract search query from request parameters
+    const { search } = req.query;
+
+    let allArtikel = null;
+
+    // Check if a search query is provided
+    if (search) {
+      allArtikel = await prisma.artikel.findMany({
+        where: {
+          OR: [
+            {
+              judul: {
+                contains: search,
+                mode: 'insensitive', // Case-insensitive search
+              },
+            },
+            {
+              deskripsi: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+            // Add more fields for searching if needed
+          ],
+        },
+        select: {
+          id: true,
+          judul: true,
+          deskripsi: true,
+          menu: true,
+          media: {
+            select: {
+              id: true,
+              link: true,
+            },
+          },
+        },
+        orderBy: {
+          id: "desc",
+        },
+      });
+    } else {
+      // If no search query, retrieve all articles
+      allArtikel = await prisma.artikel.findMany({
+        select: {
+          id: true,
+          judul: true,
+          deskripsi: true,
+          menu: true,
+          media: {
+            select: {
+              id: true,
+              link: true,
+            },
+          },
+        },
+        orderBy: {
+          id: "desc",
+        },
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "All Artikel retrieved successfully",
+      err: null,
+      data: allArtikel,
+    });
+  } catch (err) {
+    next(err);
+    return res.status(400).json({
+      status: false,
+      message: "Bad Request!",
+      err: err.message,
+      data: null,
+    });
+  }
+};
+
+
 const getById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -485,8 +567,9 @@ module.exports = {
   createArtikel,
   getAllPangan,
   getAllLimbah,
+  getAllEdukasi,
+  getAll,
   getById,
   updateArtikel,
   deleteArtikel,
-  getAllEdukasi,
 };
