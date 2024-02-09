@@ -172,9 +172,7 @@ const login = async (req, res, next) => {
       phone_number: user.phone_number,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(payload, process.env.JWT_SECRET);
 
     delete user.password;
 
