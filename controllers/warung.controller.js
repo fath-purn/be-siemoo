@@ -9,6 +9,7 @@ const path = require("path");
 const createWarung = async (req, res, next) => {
   try {
     const { user } = req;
+    console.log(user, 'ads')
     const { value, error } = warungSchema.validate(req.body);
 
     if (error) {
@@ -37,7 +38,7 @@ const createWarung = async (req, res, next) => {
     const createWarung = await prisma.warung.create({
       data: {
         id_user: Number(user.id),
-        id_pengujian: Number(pengujian.id),
+        id_pengujian: Number(pengujian.id) ? Number(pengujian.id) : 999,
         nama: nama,
         harga: Number(harga),
         deskripsi: deskripsi,
@@ -103,6 +104,7 @@ const createWarung = async (req, res, next) => {
       data: createWarung,
     });
   } catch (err) {
+    console.log(err)
     next(err);
     return res.status(400).json({
       status: false,
