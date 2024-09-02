@@ -51,6 +51,7 @@ model Users {
   pengujian   Pengujian[]
   deteksis    Deteksi[]
   warung      Warung[]
+  sakit       Sakit[]
   created     DateTime    @default(now())
   updated     DateTime    @updatedAt
 }
@@ -104,10 +105,14 @@ model Media {
   id         Int      @id @default(autoincrement())
   id_artikel Int?
   id_warung  Int?
+  id_sakit   Int?
+  id_klinik  Int?
   id_link    String
   link       String
   artikel    Artikel? @relation(fields: [id_artikel], references: [id])
   warung     Warung?  @relation(fields: [id_warung], references: [id])
+  sakit      Sakit?   @relation(fields: [id_sakit], references: [id])
+  klinik     Klinik?  @relation(fields: [id_klinik], references: [id])
   created    DateTime @default(now())
   updated    DateTime @updatedAt
 }
@@ -126,4 +131,66 @@ model Warung {
   Media        Media[]
   created      DateTime  @default(now())
   updated      DateTime  @updatedAt
+}
+
+model Sakit {
+  id        Int      @id @default(autoincrement())
+  id_user   Int
+  id_lokasi Int
+  penyakit  String
+  saran     String
+  bahaya    String
+  deskripsi String
+  akurasi   Float
+  created   DateTime @default(now())
+  updated   DateTime @updatedAt
+
+  media  Media[]
+  user   Users   @relation(fields: [id_user], references: [id])
+  lokasi Lokasi  @relation(fields: [id_lokasi], references: [id])
+}
+
+model Lokasi {
+  id         Int     @id @default(autoincrement())
+  longtitude Float
+  latitude   Float
+  sakit      Sakit[]
+
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+}
+
+model Klinik {
+  id        Int     @id @default(autoincrement())
+  id_kota   Int
+  id_jadwal Int
+  nama      String
+  alamat    String
+  maps      String
+  telepon   String
+  media     Media[]
+
+  kota    Kota     @relation(fields: [id_kota], references: [id])
+  jadwal  Jadwal   @relation(fields: [id_jadwal], references: [id])
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+}
+
+model Kota {
+  id     Int      @id @default(autoincrement())
+  nama   String
+  klinik Klinik[]
+
+  created DateTime @default(now())
+  updated DateTime @updatedAt
+}
+
+model Jadwal {
+  id         Int      @id @default(autoincrement())
+  seninSabtu String
+  minggu     String
+  klinik     Klinik[]
+
+  created DateTime @default(now())
+  updated DateTime @updatedAt
 }
