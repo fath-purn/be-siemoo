@@ -493,11 +493,17 @@ const getKotaAll = async (req, res, next) => {
       },
     });
 
+    // Map data to the desired format
+    const formattedData = data.map(item => ({
+      label: item.nama, // Use 'nama' as label
+      value: item.id    // Use 'id' as value
+    }));
+
     return res.status(200).json({
       status: true,
-      message: "Kota berhasil dibuat",
+      message: "Kota berhasil diambil",
       err: null,
-      data: data,
+      data: formattedData, // Use the formatted data
     });
   } catch (err) {
     next(err);
