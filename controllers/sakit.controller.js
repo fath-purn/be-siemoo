@@ -155,10 +155,22 @@ const getAll = async (req, res, next) => {
             // Add more fields for searching if needed
           ],
         },
-        // select: {
-        //   id: true,
-        //   nama: true,
-        // },
+        select: {
+          id: true,
+          penyakit: true,
+          saran: true,
+          bahaya: true,
+          akurasi: true,
+          deskripsi: true,
+          media: true,
+          created: true,
+          lokasi: {
+            select: {
+              longtitude: true,
+              latitude: true,
+            },
+          },
+        },
         orderBy: {
           id: "desc",
         },
@@ -171,6 +183,7 @@ const getAll = async (req, res, next) => {
           penyakit: true,
           saran: true,
           bahaya: true,
+          akurasi: true,
           deskripsi: true,
           media: true,
           created: true,
@@ -196,6 +209,7 @@ const getAll = async (req, res, next) => {
         saran: item.saran,
         bahaya: item.bahaya,
         deskripsi: item.deskripsi,
+        akurasi: item.akurasi,
         link: link,
         lokasi: item.lokasi,
         created: waktu(item.created),
