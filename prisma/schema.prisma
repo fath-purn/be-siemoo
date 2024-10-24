@@ -139,7 +139,7 @@ model Sakit {
   id_lokasi Int
   penyakit  String
   saran     String
-  bahaya    String
+  bahaya    Int // gantii woyyy, ini belum di migrate
   deskripsi String
   akurasi   Float
   created   DateTime @default(now())
