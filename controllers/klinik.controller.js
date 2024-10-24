@@ -155,10 +155,27 @@ const getAll = async (req, res, next) => {
             // Add more fields for searching if needed
           ],
         },
-        // select: {
-        //   id: true,
-        //   nama: true,
-        // },
+        select: {
+          id: true,
+          nama: true,
+          alamat: true,
+          maps: true,
+          telepon: true,
+          created: true,
+          kota: {
+            select: {
+              id: true,
+              nama: true,
+            },
+          },
+          jadwal: {
+            select: {
+              seninSabtu: true,
+              minggu: true,
+            },
+          },
+          media: true,
+        },
         orderBy: {
           id: "desc",
         },
@@ -175,6 +192,7 @@ const getAll = async (req, res, next) => {
           created: true,
           kota: {
             select: {
+              id: true,
               nama: true,
             },
           },
@@ -195,6 +213,7 @@ const getAll = async (req, res, next) => {
     allSakit = allSakit.map((item) => {
       const link =
         item.media && item.media.length > 0 ? item.media[0].link : null;
+    
       return {
         id: item.id,
         nama: item.nama,
@@ -202,7 +221,10 @@ const getAll = async (req, res, next) => {
         maps: item.maps,
         telepon: item.telepon,
         media: link,
-        kota: item.kota.nama,
+        kota: {
+          id: item.kota.id,
+          nama: item.kota.nama,
+        },
         created: waktu(item.created),
         jadwal: {
           seninSabtu: item.jadwal.seninSabtu,
