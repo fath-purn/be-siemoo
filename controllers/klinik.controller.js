@@ -147,7 +147,7 @@ const getAll = async (req, res, next) => {
         where: {
           OR: [
             {
-              penyakit: {
+              nama: {
                 contains: search,
                 mode: "insensitive", // Case-insensitive search
               },
