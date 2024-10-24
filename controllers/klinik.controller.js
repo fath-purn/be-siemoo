@@ -298,7 +298,6 @@ const getLastSakit = async (req, res, next) => {
 const getById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    console.log(id);
     
     let sakitById = await prisma.klinik.findUnique({
       where: { id: parseInt(id) },

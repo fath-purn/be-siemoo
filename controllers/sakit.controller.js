@@ -77,7 +77,7 @@ const createSakit = async (req, res, next) => {
         id_lokasi: Number(createLokasi.id),
         penyakit: "ad",
         saran: "ad",
-        bahaya: "ad",
+        bahaya: "98",
         deskripsi: "ad",
         akurasi: 3,
       },
@@ -241,6 +241,10 @@ const getLastSakit = async (req, res, next) => {
       take: 1,
     });
 
+    const klinik = await prisma.klinik.findMany({
+      take: 2,
+    });
+
     sakitById = {
       id: sakitById[0].id,
       penyakit: sakitById[0].penyakit,
@@ -254,6 +258,22 @@ const getLastSakit = async (req, res, next) => {
       },
       link: sakitById[0].media[0].link,
       lokasi: sakitById[0].lokasi,
+      klinik: [
+        {
+          id: klinik[0].id,
+          nama: klinik[0].nama,
+          alamat: klinik[0].alamat,
+          telepon: klinik[0].telepon,
+          maps: klinik[0].maps
+        },
+        {
+          id: klinik[1].id,
+          nama: klinik[1].nama,
+          alamat: klinik[1].alamat,
+          telepon: klinik[1].telepon,
+          maps: klinik[1].maps
+        },
+      ],
       created: waktu(sakitById[0].created),
     };
 
@@ -308,7 +328,7 @@ const getById = async (req, res, next) => {
 
     const klinik = await prisma.klinik.findMany({
       take: 2,
-    })
+    });
 
     sakitById = {
       id: sakitById.id,
