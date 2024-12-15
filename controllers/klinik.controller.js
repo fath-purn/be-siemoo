@@ -136,99 +136,69 @@ const createSakit = async (req, res, next) => {
 
 const getAll = async (req, res, next) => {
   try {
-    // Extract search query from request parameters
-    const { search } = req.query;
+    const { search, kota } = req.query;
 
-    let allSakit = null;
-
-    // Check if a search query is provided
-    if (search) {
-      allSakit = await prisma.klinik.findMany({
-        where: {
-          OR: [
-            {
-              nama: {
-                contains: search,
-                mode: "insensitive", // Case-insensitive search
-              },
-            },
-            // Add more fields for searching if needed
-          ],
+    // Membangun objek whereClause secara dinamis
+    const whereClause = {
+      ...(search && {
+        nama: {
+          contains: search,
+          mode: "insensitive",
         },
-        select: {
-          id: true,
-          nama: true,
-          alamat: true,
-          maps: true,
-          telepon: true,
-          created: true,
-          kota: {
-            select: {
-              id: true,
-              nama: true,
-            },
-          },
-          jadwal: {
-            select: {
-              seninSabtu: true,
-              minggu: true,
-            },
-          },
-          media: true,
-        },
-        orderBy: {
-          id: "desc",
-        },
-      });
-    } else {
-      // If no search query, retrieve all sakit items
-      allSakit = await prisma.klinik.findMany({
-        select: {
-          id: true,
-          nama: true,
-          alamat: true,
-          maps: true,
-          telepon: true,
-          created: true,
-          kota: {
-            select: {
-              id: true,
-              nama: true,
-            },
-          },
-          jadwal: {
-            select: {
-              seninSabtu: true,
-              minggu: true,
-            },
-          },
-          media: true,
-        },
-        orderBy: {
-          id: "desc",
-        },
-      });
-    }
-
-    allSakit = allSakit.map((item) => {
-      const link =
-        item.media && item.media.length > 0 ? item.media[0].link : null;
-    
-      return {
-        id: item.id,
-        nama: item.nama,
-        alamat: item.alamat,
-        maps: item.maps,
-        telepon: item.telepon,
-        media: link,
+      }),
+      ...(kota && {
         kota: {
-          id: item.kota.id,
-          nama: item.kota.nama,
+          nama: {
+            contains: kota,
+            mode: "insensitive",
+          },
         },
-        created: waktu(item.created),
+      }),
+    };
+
+    // Mengambil data dari database
+    const allSakit = await prisma.klinik.findMany({
+      where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
+      select: {
+        id: true,
+        nama: true,
+        alamat: true,
+        maps: true,
+        telepon: true,
+        created: true,
+        kota: {
+          select: {
+            nama: true,
+          },
+        },
         jadwal: {
-          seninSabtu: item.jadwal.seninSabtu,
-          minggi: item.jadwal.minggu,
+          select: {
+            seninSabtu: true,
+            minggu: true,
+          },
+        },
+        media: true,
+      },
+      orderBy: {
+        id: "desc",
+      },
+    });
+
+    // Memformat hasil
+    const formattedResults = allSakit.map(({ id, nama, alamat, maps, telepon, created, kota, jadwal, media }) => {
+      const link = media && media.length > 0 ? media[0].link : null;
+      return {
+        id,
+        nama,
+        alamat,
+        maps,
+        telepon,
+        media: link,
+        kota: kota?.nama || null, // Menggunakan optional chaining dan default value
+        created: waktu(created),
+        jadwal: {
+          seninSabtu: jadwal.seninSabtu,
+          minggu: jadwal.minggu,
         },
       };
     });
@@ -237,7 +207,7 @@ const getAll = async (req, res, next) => {
       status: true,
       message: "All sakit retrieved successfully",
       err: null,
-      data: allSakit,
+      data: formattedResults,
     });
   } catch (err) {
     next(err);
@@ -320,7 +290,7 @@ const getLastSakit = async (req, res, next) => {
 const getById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    
+
     let sakitById = await prisma.klinik.findUnique({
       where: { id: parseInt(id) },
       select: {
@@ -459,8 +429,8 @@ const deleteSakit = async (req, res, next) => {
     });
 
     await prisma.media.delete({
-      where: {id_klinik: parseInt(id)}
-    })
+      where: { id_klinik: parseInt(id) },
+    });
 
     return res.status(200).json({
       status: true,
