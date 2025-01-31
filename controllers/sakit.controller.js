@@ -212,7 +212,12 @@ const getAll = async (req, res, next) => {
         akurasi: item.akurasi,
         link: link,
         lokasi: item.lokasi,
-        created: waktu(item.created),
+        created: new Date(item.created).toLocaleString("id-ID", {
+          timeZone: "Asia/Jakarta",
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        }),
       };
     });
 
@@ -291,7 +296,14 @@ const getLastSakit = async (req, res, next) => {
           maps: klinik[1].maps
         },
       ],
-      created: waktu(sakitById[0].created),
+      created: new Date(sakitById[0].created).toLocaleString("id-ID", {
+        timeZone: "Asia/Jakarta",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        // hour: "2-digit",
+        // minute: "2-digit",
+      }),
     };
 
     if (!sakitById) {
@@ -374,7 +386,14 @@ const getById = async (req, res, next) => {
           telepon: klinik[1].telepon,
         },
       ],
-      created: waktu(sakitById.created),
+      created: new Date(sakitById.created).toLocaleString("id-ID", {
+        timeZone: "Asia/Jakarta",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        // hour: "2-digit",
+        // minute: "2-digit",
+      }),
     };
 
     if (!sakitById) {
@@ -460,6 +479,13 @@ const deleteSakit = async (req, res, next) => {
 
     const checkId = await prisma.sakit.findUnique({
       where: { id: Number(id) },
+      include: {
+        media: {
+          select: {
+            id: true,
+          }
+        }
+      }
     });
 
     if (!checkId) {
@@ -471,13 +497,19 @@ const deleteSakit = async (req, res, next) => {
       });
     }
 
-    const deletedSakit = await prisma.sakit.delete({
-      where: { id: parseInt(id) },
-    });
+    const idMedia = checkId.media[0].id;
 
     await prisma.media.delete({
-      where: { id_sakit: parseInt(id) },
+      where: { id: idMedia },
     });
+    
+    await prisma.sakit.delete({
+      where: { id: parseInt(id) },
+    });
+    
+    await prisma.lokasi.delete({
+      where: { id: Number(id) },
+    })
 
     return res.status(200).json({
       status: true,
