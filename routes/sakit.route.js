@@ -11,7 +11,7 @@ const { checkAdmin } = require("../controllers/user.controller");
 const verifyToken = require("../libs/verifyToken");
 const { upload } = require("../libs/multer");
 
-router.post("/", upload.single("image"), verifyToken, checkAdmin, createSakit);
+router.post("/", upload.single("image"), verifyToken, createSakit);
 router.get("/", getAll);
 router.get("/last", getLastSakit);
 router.get("/:id", getById);
