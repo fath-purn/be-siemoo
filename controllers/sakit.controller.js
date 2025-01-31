@@ -77,9 +77,9 @@ const createSakit = async (req, res, next) => {
         id_lokasi: Number(createLokasi.id),
         penyakit: "ad",
         saran: "ad",
-        bahaya: "98",
+        bahaya: 98,
         deskripsi: "ad",
-        akurasi: 3,
+        akurasi: 2,
       },
     });
 
