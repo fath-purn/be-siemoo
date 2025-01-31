@@ -77,9 +77,9 @@ const createSakit = async (req, res, next) => {
         id_lokasi: Number(createLokasi.id),
         penyakit: "ad",
         saran: "ad",
-        bahaya: 98,
+        bahaya: 2,
         deskripsi: "ad",
-        akurasi: 2,
+        akurasi: 98,
       },
     });
 
@@ -253,6 +253,9 @@ const getLastSakit = async (req, res, next) => {
         },
       },
       take: 1,
+      orderBy: {
+        created: 'desc',
+      }
     });
 
     const klinik = await prisma.klinik.findMany({
