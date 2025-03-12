@@ -2,6 +2,7 @@ const prisma = require("../libs/prisma");
 const Joi = require("joi");
 const imagekit = require("../libs/imagekit");
 const path = require("path");
+const { PREDICT_URL } = process.env;
 
 const sakitSchema = Joi.object({
   longtitude: Joi.number().required(),
@@ -71,7 +72,7 @@ const createSakit = async (req, res, next) => {
       },
     });
 
-    const createdSakit = await prisma.sakit.create({
+    let createdSakit = await prisma.sakit.create({
       data: {
         id_user: Number(id),
         id_lokasi: Number(createLokasi.id),
@@ -114,7 +115,49 @@ const createSakit = async (req, res, next) => {
 
     // panggil fungsi uploadFiles untuk imagekit
     if (req.file) {
-      await uploadFiles(req.file, createdSakit.id);
+      const a = await uploadFiles(req.file, createdSakit.id);
+
+      try {
+        const response = await fetch(`${PREDICT_URL}/predict`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            image_url: a.link,
+          }),
+        });
+      
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+      
+        const hasilPredict = await response.json();
+      
+        if (!hasilPredict) {
+          throw new Error("Data response tidak sesuai");
+        }
+      
+        // update data sakit
+        createdSakit = await prisma.sakit.update({
+          where: { id: createdSakit.id },
+          data: {
+            penyakit: hasilPredict.data.penyakit,
+            saran: hasilPredict.data.saran,
+            bahaya: hasilPredict.data.bahaya,
+            deskripsi: hasilPredict.data.deskripsi,
+            akurasi: hasilPredict.data.akurasi,
+          },
+        });
+      } catch (err) {
+        return res.status(500).json({
+          status: false,
+          message: "Error saat melakukan fetch API",
+          err: err.message,
+          data: null,
+        });
+      }
+
     }
 
     return res.status(201).json({
