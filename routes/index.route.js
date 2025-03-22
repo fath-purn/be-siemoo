@@ -15,5 +15,6 @@ router.use("/pengujian", require("./uji.route"));
 router.use("/warung", require("./warung.route"));
 router.use("/deteksi", require("./sakit.route"));
 router.use("/klinik", require("./klinik.route"));
+router.use("/cocoblog", require("./cocoblog.route"));
 
 module.exports = router;

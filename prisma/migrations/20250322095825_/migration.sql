@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Sakit" ADD COLUMN     "bahaya" INTEGER NOT NULL DEFAULT 0;

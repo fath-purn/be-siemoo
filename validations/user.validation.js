@@ -18,7 +18,14 @@ const loginUserSchema = Joi.object({
   password: Joi.string().min(6).required(),
 });
 
+const cocoblogSchema = Joi.object({
+  judul: Joi.string().required(),
+  isi: Joi.string().required(),
+  linkGambar: Joi.string(),
+})
+
 module.exports = {
   registerValidationSchema,
   loginUserSchema,
+  cocoblogSchema,
 };

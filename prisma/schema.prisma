@@ -52,6 +52,7 @@ model Users {
   deteksis    Deteksi[]
   warung      Warung[]
   sakit       Sakit[]
+  cocoblog    Cocoblog[]
   created     DateTime    @default(now())
   updated     DateTime    @updatedAt
 }
@@ -102,19 +103,21 @@ model Deteksi {
 }
 
 model Media {
-  id         Int      @id @default(autoincrement())
-  id_artikel Int?
-  id_warung  Int?
-  id_sakit   Int?
-  id_klinik  Int?
-  id_link    String
-  link       String
-  artikel    Artikel? @relation(fields: [id_artikel], references: [id])
-  warung     Warung?  @relation(fields: [id_warung], references: [id])
-  sakit      Sakit?   @relation(fields: [id_sakit], references: [id])
-  klinik     Klinik?  @relation(fields: [id_klinik], references: [id])
-  created    DateTime @default(now())
-  updated    DateTime @updatedAt
+  id          Int       @id @default(autoincrement())
+  id_artikel  Int?
+  id_warung   Int?
+  id_sakit    Int?
+  id_klinik   Int?
+  id_cocoblog Int?
+  id_link     String
+  link        String
+  artikel     Artikel?  @relation(fields: [id_artikel], references: [id])
+  warung      Warung?   @relation(fields: [id_warung], references: [id])
+  sakit       Sakit?    @relation(fields: [id_sakit], references: [id])
+  klinik      Klinik?   @relation(fields: [id_klinik], references: [id])
+  cocoblog    Cocoblog? @relation(fields: [id_cocoblog], references: [id])
+  created     DateTime  @default(now())
+  updated     DateTime  @updatedAt
 }
 
 model Warung {
@@ -139,7 +142,7 @@ model Sakit {
   id_lokasi Int
   penyakit  String
   saran     String
-  bahaya    Int // gantii woyyy, ini belum di migrate
+  bahaya    Int      @default(0)
   deskripsi String
   akurasi   Float
   created   DateTime @default(now())
@@ -193,4 +196,16 @@ model Jadwal {
 
   created DateTime @default(now())
   updated DateTime @updatedAt
+}
+
+model Cocoblog {
+  id       Int    @id @default(autoincrement())
+  id_admin Int
+  judul    String
+  isi      String @db.Text
+
+  admin     Users    @relation(fields: [id_admin], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  gambar    Media[]
 }
