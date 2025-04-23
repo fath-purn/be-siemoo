@@ -12,9 +12,9 @@ const verifyToken = require("../libs/verifyToken");
 const { upload } = require("../libs/multer");
 
 router.post("/", upload.single("image"), verifyToken, createSakit);
-router.get("/", getAll);
-router.get("/last", getLastSakit);
-router.get("/:id", getById);
+router.get("/", verifyToken, getAll);
+router.get("/last", verifyToken, getLastSakit);
+router.get("/:id", verifyToken, getById);
 // router.put("/:id", upload.array("image"), verifyToken, checkAdmin, updateSakit);
 router.delete("/:id", verifyToken, checkAdmin, deleteSakit);
 

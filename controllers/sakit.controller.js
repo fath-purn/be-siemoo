@@ -9,33 +9,6 @@ const sakitSchema = Joi.object({
   latitude: Joi.number().required(),
 });
 
-const waktu = (created) => {
-  const date = new Date(created);
-
-  // Daftar nama bulan dalam bahasa Indonesia
-  const monthNames = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
-
-  // Format tanggal menjadi "28 Agustus 2024"
-  const formattedDate = `${date.getDate().toString().padStart(2, "0")} ${
-    monthNames[date.getMonth()]
-  } ${date.getFullYear()}`;
-
-  return formattedDate;
-};
-
 const createSakit = async (req, res, next) => {
   try {
     const { id } = req.user;
@@ -127,17 +100,17 @@ const createSakit = async (req, res, next) => {
             image_url: a.link,
           }),
         });
-      
+
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-      
+
         const hasilPredict = await response.json();
-      
+
         if (!hasilPredict) {
           throw new Error("Data response tidak sesuai");
         }
-      
+
         // update data sakit
         createdSakit = await prisma.sakit.update({
           where: { id: createdSakit.id },
@@ -157,7 +130,6 @@ const createSakit = async (req, res, next) => {
           data: null,
         });
       }
-
     }
 
     return res.status(201).json({
@@ -179,69 +151,35 @@ const createSakit = async (req, res, next) => {
 
 const getAll = async (req, res, next) => {
   try {
-    // Extract search query from request parameters
-    const { search } = req.query;
+    const { id } = req.user;
 
     let allSakit = null;
 
-    // Check if a search query is provided
-    if (search) {
-      allSakit = await prisma.sakit.findMany({
-        where: {
-          OR: [
-            {
-              penyakit: {
-                contains: search,
-                mode: "insensitive", // Case-insensitive search
-              },
-            },
-            // Add more fields for searching if needed
-          ],
-        },
-        select: {
-          id: true,
-          penyakit: true,
-          saran: true,
-          bahaya: true,
-          akurasi: true,
-          deskripsi: true,
-          media: true,
-          created: true,
-          lokasi: {
-            select: {
-              longtitude: true,
-              latitude: true,
-            },
+    // If no search query, retrieve all sakit items
+    allSakit = await prisma.sakit.findMany({
+      where: {
+        id_user: Number(id),
+      },
+      select: {
+        id: true,
+        penyakit: true,
+        saran: true,
+        bahaya: true,
+        akurasi: true,
+        deskripsi: true,
+        media: true,
+        created: true,
+        lokasi: {
+          select: {
+            longtitude: true,
+            latitude: true,
           },
         },
-        orderBy: {
-          id: "desc",
-        },
-      });
-    } else {
-      // If no search query, retrieve all sakit items
-      allSakit = await prisma.sakit.findMany({
-        select: {
-          id: true,
-          penyakit: true,
-          saran: true,
-          bahaya: true,
-          akurasi: true,
-          deskripsi: true,
-          media: true,
-          created: true,
-          lokasi: {
-            select: {
-              longtitude: true,
-              latitude: true,
-            },
-          },
-        },
-        orderBy: {
-          id: "desc",
-        },
-      });
-    }
+      },
+      orderBy: {
+        id: "desc",
+      },
+    });
 
     allSakit = allSakit.map((item) => {
       const link =
@@ -259,7 +197,7 @@ const getAll = async (req, res, next) => {
           timeZone: "Asia/Jakarta",
           day: "numeric",
           month: "long",
-          year: "numeric"
+          year: "numeric",
         }),
       };
     });
@@ -283,7 +221,11 @@ const getAll = async (req, res, next) => {
 
 const getLastSakit = async (req, res, next) => {
   try {
+    const { id } = req.user;
     let sakitById = await prisma.sakit.findMany({
+      where: {
+        id_user: Number(id),
+      },
       select: {
         id: true,
         penyakit: true,
@@ -302,9 +244,18 @@ const getLastSakit = async (req, res, next) => {
       },
       take: 1,
       orderBy: {
-        created: 'desc',
-      }
+        created: "desc",
+      },
     });
+
+    if (!sakitById.length) {
+      return res.status(400).json({
+        status: false,
+        message: "Bad Request!",
+        err: "Data penyakit tidak ditemukan",
+        data: null,
+      });
+    }
 
     const klinik = await prisma.klinik.findMany({
       take: 2,
@@ -329,14 +280,14 @@ const getLastSakit = async (req, res, next) => {
           nama: klinik[0].nama,
           alamat: klinik[0].alamat,
           telepon: klinik[0].telepon,
-          maps: klinik[0].maps
+          maps: klinik[0].maps,
         },
         {
           id: klinik[1].id,
           nama: klinik[1].nama,
           alamat: klinik[1].alamat,
           telepon: klinik[1].telepon,
-          maps: klinik[1].maps
+          maps: klinik[1].maps,
         },
       ],
       created: new Date(sakitById[0].created).toLocaleString("id-ID", {
@@ -344,19 +295,8 @@ const getLastSakit = async (req, res, next) => {
         day: "numeric",
         month: "long",
         year: "numeric",
-        // hour: "2-digit",
-        // minute: "2-digit",
       }),
     };
-
-    if (!sakitById) {
-      return res.status(400).json({
-        status: false,
-        message: "Bad Request!",
-        err: "Data penyakit tidak ditemukan",
-        data: null,
-      });
-    }
 
     return res.status(200).json({
       status: true,
@@ -434,8 +374,6 @@ const getById = async (req, res, next) => {
         day: "numeric",
         month: "long",
         year: "numeric",
-        // hour: "2-digit",
-        // minute: "2-digit",
       }),
     };
 
@@ -526,9 +464,9 @@ const deleteSakit = async (req, res, next) => {
         media: {
           select: {
             id: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     if (!checkId) {
@@ -545,14 +483,14 @@ const deleteSakit = async (req, res, next) => {
     await prisma.media.delete({
       where: { id: idMedia },
     });
-    
+
     await prisma.sakit.delete({
       where: { id: parseInt(id) },
     });
-    
+
     await prisma.lokasi.delete({
       where: { id: Number(id) },
-    })
+    });
 
     return res.status(200).json({
       status: true,
