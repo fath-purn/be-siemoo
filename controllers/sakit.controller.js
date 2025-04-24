@@ -23,21 +23,19 @@ const createSakit = async (req, res, next) => {
       });
     }
 
-    /* 
-      masuk ke enpoint dari python
-
-      data yang dibalikan dari python
-      {penyakit, saran, bahaya, deskripsi, akurasi}
-    */
-
-    // const {penyakit,
-    //   saran,
-    //   bahaya,
-    //   deskripsi,
-    //   akurasi} =
-
     const { longtitude, latitude } = value;
 
+    // Cek apakah ada file gambar yang diupload
+    if (!req.file) {
+      return res.status(400).json({
+        status: false,
+        message: "Image file is required",
+        err: "No image uploaded",
+        data: null,
+      });
+    }
+
+    // Buat lokasi terlebih dahulu
     const createLokasi = await prisma.lokasi.create({
       data: {
         latitude,
@@ -45,92 +43,63 @@ const createSakit = async (req, res, next) => {
       },
     });
 
-    let createdSakit = await prisma.sakit.create({
+    // Upload file ke imagekit
+    const uploadFiles = async (file) => {
+      let strFile = file.buffer.toString("base64");
+
+      let { url, fileId } = await imagekit.upload({
+        fileName: Date.now() + path.extname(file.originalname),
+        file: strFile,
+      });
+
+      return { url, fileId };
+    };
+
+    // Upload gambar terlebih dahulu
+    const { url, fileId } = await uploadFiles(req.file);
+
+    // Fetch dari API Python untuk prediksi
+    const response = await fetch(`${PREDICT_URL}/predict`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        image_url: url,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+
+    const hasilPredict = await response.json();
+
+    if (!hasilPredict || !hasilPredict.data) {
+      throw new Error("Data response tidak sesuai");
+    }
+
+    // Buat record sakit dengan data hasil prediksi
+    const createdSakit = await prisma.sakit.create({
       data: {
         id_user: Number(id),
         id_lokasi: Number(createLokasi.id),
-        penyakit: "ad",
-        saran: "ad",
-        bahaya: 2,
-        deskripsi: "ad",
-        akurasi: 98,
+        penyakit: hasilPredict.data.penyakit,
+        saran: hasilPredict.data.saran,
+        bahaya: hasilPredict.data.bahaya,
+        deskripsi: hasilPredict.data.deskripsi,
+        akurasi: hasilPredict.data.akurasi,
       },
     });
 
-    // fungsi uploadFiles untuk imagekit
-    const uploadFiles = async (file, id_sakit) => {
-      try {
-        let strFile = file.buffer.toString("base64");
-
-        let { url, fileId } = await imagekit.upload({
-          fileName: Date.now() + path.extname(file.originalname),
-          file: strFile,
-        });
-
-        const gambar = await prisma.media.create({
-          data: {
-            id_link: fileId,
-            link: url,
-            id_sakit: id_sakit,
-          },
-        });
-
-        return gambar;
-      } catch (err) {
-        return res.status(404).json({
-          status: false,
-          message: "Bad Request!",
-          err: err.message,
-          data: null,
-        });
-      }
-    };
-
-    // panggil fungsi uploadFiles untuk imagekit
-    if (req.file) {
-      const a = await uploadFiles(req.file, createdSakit.id);
-
-      try {
-        const response = await fetch(`${PREDICT_URL}/predict`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            image_url: a.link,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
-
-        const hasilPredict = await response.json();
-
-        if (!hasilPredict) {
-          throw new Error("Data response tidak sesuai");
-        }
-
-        // update data sakit
-        createdSakit = await prisma.sakit.update({
-          where: { id: createdSakit.id },
-          data: {
-            penyakit: hasilPredict.data.penyakit,
-            saran: hasilPredict.data.saran,
-            bahaya: hasilPredict.data.bahaya,
-            deskripsi: hasilPredict.data.deskripsi,
-            akurasi: hasilPredict.data.akurasi,
-          },
-        });
-      } catch (err) {
-        return res.status(500).json({
-          status: false,
-          message: "Error saat melakukan fetch API",
-          err: err.message,
-          data: null,
-        });
-      }
-    }
+    // Simpan data media setelah sakit berhasil dibuat
+    const gambar = await prisma.media.create({
+      data: {
+        id_link: fileId,
+        link: url,
+        id_sakit: createdSakit.id,
+      },
+    });
 
     return res.status(201).json({
       status: true,
@@ -139,13 +108,8 @@ const createSakit = async (req, res, next) => {
       data: createdSakit,
     });
   } catch (err) {
+    // Gunakan next(err) saja, jangan return response di sini
     next(err);
-    return res.status(400).json({
-      status: false,
-      message: "Bad Request!",
-      err: err.message,
-      data: null,
-    });
   }
 };
 
