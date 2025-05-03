@@ -34,7 +34,7 @@ const createCocoblog = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "Cocoblog berhasil ditambahkan",
+      message: "Penyakit berhasil ditambahkan",
       err: null,
       data: { cocoblog, gambar },
     });
@@ -104,7 +104,7 @@ const getCocoblogById = async (req, res, next) => {
     if (!cocoblog) {
       return res.status(404).json({
         success: false,
-        message: "Cocoblog tidak ditemukan",
+        message: "Penyakit tidak ditemukan",
         err: null,
         data: null,
       });
@@ -112,7 +112,7 @@ const getCocoblogById = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: "Cocoblog ditemukan",
+      message: "Penyakit ditemukan",
       err: null,
       data: {
         id: cocoblog.id,
@@ -145,7 +145,7 @@ const updateCocoblog = async (req, res, next) => {
     if (!check) {
       return res.status(404).json({
         success: false,
-        message: "Cocoblog tidak ditemukan",
+        message: "Penyakit tidak ditemukan",
         err: null,
         data: null,
       });
@@ -205,7 +205,7 @@ const deleteCocoblog = async (req, res, next) => {
     if (!check) {
       return res.status(404).json({
         success: false,
-        message: "Cocoblog tidak ditemukan",
+        message: "Penyakit tidak ditemukan",
         err: null,
         data: null,
       });
@@ -216,7 +216,7 @@ const deleteCocoblog = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: "Cocoblog berhasil dihapus",
+      message: "Penyakit berhasil dihapus",
       err: null,
       data: null,
     });

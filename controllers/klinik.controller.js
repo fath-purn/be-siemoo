@@ -41,15 +41,6 @@ const waktu = (created) => {
   return formattedDate;
 };
 
-const link = (link) => {
-  const srcRegex = /src="([^"]*)"/;
-  const srcMatch = link.match(srcRegex);
-
-  const linkMaps = srcMatch ? srcMatch[1] : null;
-
-  return linkMaps;
-};
-
 const createSakit = async (req, res, next) => {
   try {
     const { error, value } = klinikSchema.validate(req.body);
@@ -72,13 +63,25 @@ const createSakit = async (req, res, next) => {
       },
     });
 
+    const checkKota = await prisma.kota.findUnique({
+      where: { id: Number(id_kota) },
+    });
+
+    if (!checkKota) {
+      return res.status(400).json({
+        status: false,
+        message: "Bad Request!",
+        err: "Kota tidak ditemukan",
+        data: null,
+      });
+    }
     const create = await prisma.klinik.create({
       data: {
-        id_kota: Number(id_kota),
-        id_jadwal: Number(createJadwal.id),
+        id_kota: Number(checkKota.id), // cukup ini
+        id_jadwal: Number(createJadwal.id), // dan ini
         nama,
         alamat,
-        maps: link(maps),
+        maps,
         telepon: toIndonesianPhoneNumber(telepon),
       },
     });
@@ -185,23 +188,25 @@ const getAll = async (req, res, next) => {
     });
 
     // Memformat hasil
-    const formattedResults = allSakit.map(({ id, nama, alamat, maps, telepon, created, kota, jadwal, media }) => {
-      const link = media && media.length > 0 ? media[0].link : null;
-      return {
-        id,
-        nama,
-        alamat,
-        maps,
-        telepon,
-        media: link,
-        kota: kota?.nama || null, // Menggunakan optional chaining dan default value
-        created: waktu(created),
-        jadwal: {
-          seninSabtu: jadwal.seninSabtu,
-          minggu: jadwal.minggu,
-        },
-      };
-    });
+    const formattedResults = allSakit.map(
+      ({ id, nama, alamat, maps, telepon, created, kota, jadwal, media }) => {
+        const link = media && media.length > 0 ? media[0].link : null;
+        return {
+          id,
+          nama,
+          alamat,
+          maps,
+          telepon,
+          media: link,
+          kota: kota?.nama || null, // Menggunakan optional chaining dan default value
+          created: waktu(created),
+          jadwal: {
+            seninSabtu: jadwal.seninSabtu,
+            minggu: jadwal.minggu,
+          },
+        };
+      }
+    );
 
     return res.status(200).json({
       status: true,
@@ -359,22 +364,8 @@ const getById = async (req, res, next) => {
 const updateSakit = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { nama } = req.body;
 
-    const { error, value } = sakitSchema.validate({ nama });
-
-    const checkId = await prisma.sakit.findUnique({
-      where: { id: Number(id) },
-    });
-
-    if (!checkId) {
-      return res.status(400).json({
-        status: false,
-        message: "Bad Request!",
-        err: "Data penyakit tidak ditemukan",
-        data: null,
-      });
-    }
+    const { error, value } = klinikSchema.validate(req.body);
 
     if (error) {
       return res.status(400).json({
@@ -385,16 +376,101 @@ const updateSakit = async (req, res, next) => {
       });
     }
 
-    const updatedSakit = await prisma.sakit.update({
-      where: { id: parseInt(id) },
-      data: { nama: value.nama },
+    const checkKlinik = await prisma.klinik.findUnique({
+      where: { id: Number(id) },
+      include: { jadwal: true },
     });
+
+    if (!checkKlinik) {
+      return res.status(400).json({
+        status: false,
+        message: "Bad Request!",
+        err: "Data klinik tidak ditemukan",
+        data: null,
+      });
+    }
+
+    const { id_kota, nama, alamat, maps, telepon, seninSabtu, minggu } = value;
+
+    // Cek kota
+    const checkKota = await prisma.kota.findUnique({
+      where: { id: Number(id_kota) },
+    });
+
+    if (!checkKota) {
+      return res.status(400).json({
+        status: false,
+        message: "Bad Request!",
+        err: "Kota tidak ditemukan",
+        data: null,
+      });
+    }
+
+    // Update jadwal
+    await prisma.jadwal.update({
+      where: { id: checkKlinik.id_jadwal },
+      data: {
+        seninSabtu,
+        minggu,
+      },
+    });
+
+    // Update data klinik
+    const updatedKlinik = await prisma.klinik.update({
+      where: { id: Number(id) },
+      data: {
+        id_kota: Number(id_kota),
+        nama,
+        alamat,
+        maps,
+        telepon: toIndonesianPhoneNumber(telepon),
+      },
+    });
+
+    // fungsi uploadFiles untuk imagekit
+    const uploadFiles = async (file, id_klinik) => {
+      try {
+        let strFile = file.buffer.toString("base64");
+
+        let { url, fileId } = await imagekit.upload({
+          fileName: Date.now() + path.extname(file.originalname),
+          file: strFile,
+        });
+
+        // opsional: hapus media lama dulu jika hanya boleh satu file
+        await prisma.media.deleteMany({
+          where: { id_klinik: id_klinik },
+        });
+
+        const gambar = await prisma.media.create({
+          data: {
+            id_link: fileId,
+            link: url,
+            id_klinik: id_klinik,
+          },
+        });
+
+        return gambar;
+      } catch (err) {
+        return res.status(404).json({
+          status: false,
+          message: "Upload Failed",
+          err: err.message,
+          data: null,
+        });
+      }
+    };
+
+    // Jika ada file baru, upload dan update media
+    if (req.file) {
+      await uploadFiles(req.file, updatedKlinik.id);
+    }
 
     return res.status(200).json({
       status: true,
-      message: "Data penyakit updated successfully",
+      message: "Data klinik updated successfully",
       err: null,
-      data: updatedSakit,
+      data: updatedKlinik,
     });
   } catch (err) {
     next(err);
@@ -406,6 +482,7 @@ const updateSakit = async (req, res, next) => {
     });
   }
 };
+
 
 const deleteSakit = async (req, res, next) => {
   try {
@@ -424,12 +501,20 @@ const deleteSakit = async (req, res, next) => {
       });
     }
 
-    await prisma.klinik.delete({
-      where: { id: parseInt(id) },
+    // Hapus semua media terkait
+    await prisma.media.deleteMany({
+      where: { id_klinik: Number(id) },
     });
 
-    await prisma.media.delete({
-      where: { id_klinik: parseInt(id) },
+    // Hapus jadwal (dari id_jadwal yang diambil dari data klinik)
+    
+    // Hapus klinik
+    await prisma.klinik.delete({
+      where: { id: Number(id) },
+    });
+    
+    await prisma.jadwal.delete({
+      where: { id: checkId.id_jadwal },
     });
 
     return res.status(200).json({
@@ -448,6 +533,7 @@ const deleteSakit = async (req, res, next) => {
     });
   }
 };
+
 
 const createKota = async (req, res, next) => {
   try {
@@ -486,9 +572,9 @@ const getKotaAll = async (req, res, next) => {
     });
 
     // Map data to the desired format
-    const formattedData = data.map(item => ({
+    const formattedData = data.map((item) => ({
       label: item.nama, // Use 'nama' as label
-      value: item.id    // Use 'id' as value
+      value: item.id, // Use 'id' as value
     }));
 
     return res.status(200).json({

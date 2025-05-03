@@ -23,7 +23,7 @@ router.post("/", upload.single("image"), verifyToken, checkAdmin, createSakit);
 router.get("/", getAll);
 router.get("/last", getLastSakit);
 router.get("/:id", getById);
-// router.put("/:id", upload.array("image"), verifyToken, checkAdmin, updateSakit);
+router.put("/:id", upload.array("image"), verifyToken, checkAdmin, updateSakit);
 router.delete("/:id", verifyToken, checkAdmin, deleteSakit);
 
 
