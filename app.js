@@ -1,4 +1,9 @@
 require('dotenv').config();
+
+BigInt.prototype.toJSON = function() {
+  return this.toString();
+};
+
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
@@ -9,6 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const { serverError, notFound } = require('./middlewares/errorHandling');
 const PORT = process.env.PORT || 3000;
+
 
 
 app.use(
