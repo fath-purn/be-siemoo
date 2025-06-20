@@ -247,6 +247,7 @@ const authenticate = async (req, res, next) => {
       no_wa: userDetail.no_wa,
       rt: userDetail.rt,
       rw: userDetail.rw,
+      verified: userDetail.verified,
       id_kelompok: userDetail.id_kelompok,
       role: userDetail.role,
       kelompok: userDetail.kelompok.nama,
