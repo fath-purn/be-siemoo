@@ -19,7 +19,7 @@ router.get("/whoami", verifyToken, authenticate);
 router.get("/dashboard", verifyToken, dashboard);
 // router.post("/change-password", changePassword);
 
-router.post("/resend-otp", resendOtp);
-router.post("/verify-email", verifyEmail);
+router.post("/resend-otp", verifyToken, resendOtp);
+router.post("/verify-email", verifyToken, verifyEmail);
 
 module.exports = router;

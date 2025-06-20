@@ -498,14 +498,16 @@ const dashboard = async (req, res, next) => {
 
 const resendOtp = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    if (!email) {
+    const { id } = req.user;
+    if (!id) {
       return res
         .status(400)
-        .json({ status: false, message: "Email diperlukan." });
+        .json({ status: false, message: "Id diperlukan." });
     }
 
-    const user = await prisma.users.findUnique({ where: { email } });
+    console.log('Resending OTP for user ID:', id);
+
+    const user = await prisma.users.findUnique({ where: { id } });
 
     if (!user) {
       // Kita kirim pesan umum untuk keamanan, agar orang tidak bisa menebak email mana yang terdaftar.
@@ -541,19 +543,20 @@ const resendOtp = async (req, res, next) => {
 
 const verifyEmail = async (req, res, next) => {
   try {
-    const { email, verificationCode } = req.body;
+    const { verificationCode } = req.body;
+        const { id } = req.user;
 
     // 1. Validasi Input Dasar
-    if (!email || !verificationCode) {
+    if (!id || !verificationCode) {
       return res.status(400).json({
         status: false,
-        message: "Email dan kode verifikasi diperlukan.",
+        message: "Id dan kode verifikasi diperlukan.",
       });
     }
 
     // 2. Cari User di database berdasarkan email yang diberikan
     const user = await prisma.users.findUnique({
-      where: { email },
+      where: { id: id },
     });
 
     // 3. Lakukan serangkaian pengecekan keamanan dan validitas
@@ -590,7 +593,7 @@ const verifyEmail = async (req, res, next) => {
     // 4. Jika semua pengecekan lolos, verifikasi berhasil!
     // Update data user di database.
     await prisma.users.update({
-      where: { email },
+      where: { id: id },
       data: {
         verified: true,
         verificationCode: null, // Penting: Hapus kode setelah digunakan
@@ -608,7 +611,7 @@ const verifyEmail = async (req, res, next) => {
     // 6. Kirim respons sukses ke frontend
     return res.status(200).json({
       status: true,
-      message: "Verifikasi email berhasil! Anda sekarang bisa login.",
+      message: "Verifikasi email berhasil!",
     });
   } catch (err) {
     next(err);
