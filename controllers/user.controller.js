@@ -6,6 +6,8 @@ const {
   registerValidationSchema,
   loginUserSchema,
 } = require("../validations/user.validation");
+const { generateAndSendOtp } = require("../helpers/otpService");
+// const { logActivity } = require('../libs/activityService');
 
 function toIndonesianPhoneNumber(phoneNumber) {
   let digitsOnly = phoneNumber.replace(/\D/g, "");
@@ -34,10 +36,14 @@ const parseDate = (date) => {
 // register
 const register = async (req, res, next) => {
   try {
-    let { email, password, fullname, sapi, no_wa, rt, rw, id_kelompok, role } =
-      req.body;
+    // 1. Validasi Input (Kode Anda sudah bagus)
+    const { value, error } = registerValidationSchema.validate(req.body);
+    if (error) {
+      // Log percobaan registrasi yang gagal karena validasi
+      return res.status(400).json({ status: false, message: error.message });
+    }
 
-    const { value, error } = await registerValidationSchema.validateAsync({
+    const {
       email,
       password,
       fullname,
@@ -47,48 +53,36 @@ const register = async (req, res, next) => {
       rw,
       id_kelompok,
       role,
-    });
+    } = value;
 
-    if (error) {
-      return res.status(400).json({
-        status: false,
-        message: "Bad Request",
-        err: error.message,
-        data: null,
-      });
-    }
-
-    let userExist = await prisma.users.findUnique({
-      where: { email: email },
-    });
+    // 2. Cek User & Kelompok (Kode Anda sudah bagus)
+    const userExist = await prisma.users.findUnique({ where: { email } });
     if (userExist) {
-      return res.status(400).json({
-        status: false,
+      return res.status(404).json({
+        success: false,
         message: "Bad Request",
-        err: "Email already exists!",
+        err: "Email sudah terdaftar.",
         data: null,
       });
     }
 
     const checkKelompok = await prisma.kelompok.findUnique({
-      where: {
-        id: id_kelompok,
-      },
+      where: { id: id_kelompok },
     });
-
     if (!checkKelompok) {
-      res.status(404).json({
-        status: true,
+      return res.status(404).json({
+        success: false,
         message: "Bad Request",
-        err: "Kelompok tani tidak ditemukan",
+        err: "Kelompok tidak ditemukan.",
         data: null,
       });
     }
 
-    let encryptedPassword = await bcrypt.hash(password, 10);
-    let indonesianPhoneNumber = toIndonesianPhoneNumber(no_wa);
+    // 3. Buat User Baru
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    const indonesianPhoneNumber = toIndonesianPhoneNumber(no_wa);
 
-    let users = await prisma.users.create({
+    const newUser = await prisma.users.create({
       data: {
         email,
         password: encryptedPassword,
@@ -99,16 +93,27 @@ const register = async (req, res, next) => {
         rw,
         id_kelompok,
         role,
+        verified: false, // Pastikan user belum terverifikasi
       },
     });
 
-    delete users.password;
+    // 4. Panggil Service untuk Generate dan Kirim OTP
+    await generateAndSendOtp(newUser);
+
+    delete newUser.password;
+
+    // 5. Catat Aktivitas Registrasi Sukses
+    // await prisma.aktivitas({
+    //   id_user: newUser.id,
+    //   aktivitas: "USER_REGISTER",
+    //   status: "SUCCESS",
+    // });
 
     return res.status(201).json({
       status: true,
       message: "OK!",
       err: null,
-      data: users,
+      data: newUser,
     });
   } catch (err) {
     next(err);
@@ -175,6 +180,15 @@ const login = async (req, res, next) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET);
 
     delete user.password;
+
+    // Catat aktivitas login
+    await prisma.aktivitas.create({
+      data: {
+        id_user: user.id,
+        aktivitas: "USER_LOGIN",
+        status: "SUCCESS",
+      },
+    });
 
     return res.status(200).json({
       success: true,
@@ -365,12 +379,12 @@ const getAll = async (req, res, next) => {
           select: {
             id: true,
             nama: true,
-          }
+          },
         },
         role: true,
         created: true,
         updated: true,
-      }
+      },
     });
 
     return res.status(200).json({
@@ -482,12 +496,124 @@ const dashboard = async (req, res, next) => {
   }
 };
 
-// const changePassword = async (req, res, next) => {
-//   try {
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+const resendOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Email diperlukan." });
+    }
+
+    const user = await prisma.users.findUnique({ where: { email } });
+
+    if (!user) {
+      // Kita kirim pesan umum untuk keamanan, agar orang tidak bisa menebak email mana yang terdaftar.
+      return res.status(200).json({
+        status: true,
+        message: "Jika email terdaftar, email verifikasi baru telah dikirim.",
+      });
+    }
+
+    if (user.verified) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Akun ini sudah terverifikasi." });
+    }
+
+    // Cukup panggil fungsi yang sama!
+    await generateAndSendOtp(user);
+
+    // Log aktivitasnya
+    // await prisma.aktivitas({
+    //   id_user: user.id,
+    //   aktivitas: "VERIFIKASI_EMAIL",
+    //   status: "FAILURE",
+    // });
+    
+    return res
+      .status(200)
+      .json({ status: true, message: "Email verifikasi baru telah dikirim." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const verifyEmail = async (req, res, next) => {
+  try {
+    const { email, verificationCode } = req.body;
+
+    // 1. Validasi Input Dasar
+    if (!email || !verificationCode) {
+      return res.status(400).json({
+        status: false,
+        message: "Email dan kode verifikasi diperlukan.",
+      });
+    }
+
+    // 2. Cari User di database berdasarkan email yang diberikan
+    const user = await prisma.users.findUnique({
+      where: { email },
+    });
+
+    // 3. Lakukan serangkaian pengecekan keamanan dan validitas
+    if (!user || user.verificationCode !== verificationCode) {
+      // Jika user tidak ada ATAU kode salah, kirim pesan error yang sama.
+      // Ini untuk mencegah orang menebak email yang terdaftar.
+      return res.status(400).json({
+        status: false,
+        message: "Kode verifikasi salah atau tidak valid.",
+      });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({
+        status: false,
+        message: "Akun ini sudah terverifikasi sebelumnya.",
+      });
+    }
+
+    // Cek apakah kode sudah kedaluwarsa (menggunakan Unix Timestamp)
+    if (Date.now() > user.verificationCodeExpiresAt) {
+      // Log percobaan yang gagal karena kedaluwarsa
+      // await prisma.aktivitas({
+      //   id_user: user.id,
+      //   aktivitas: "VERIFIKASI_EMAIL",
+      //   status: "FAILURE",
+      // });
+      return res.status(400).json({
+        status: false,
+        message: "Kode verifikasi sudah kedaluwarsa. Silakan minta kode baru.",
+      });
+    }
+
+    // 4. Jika semua pengecekan lolos, verifikasi berhasil!
+    // Update data user di database.
+    await prisma.users.update({
+      where: { email },
+      data: {
+        verified: true,
+        verificationCode: null, // Penting: Hapus kode setelah digunakan
+        verificationCodeExpiresAt: null, // Penting: Hapus juga waktu kedaluwarsanya
+      },
+    });
+
+    // 5. Catat aktivitas sukses ke dalam log
+    // await prisma.aktivitas({
+    //   id_user: user.id,
+    //   aktivitas: "VERIFIKASI_EMAIL",
+    //   status: "SUCCESS",
+    // });
+
+    // 6. Kirim respons sukses ke frontend
+    return res.status(200).json({
+      status: true,
+      message: "Verifikasi email berhasil! Anda sekarang bisa login.",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 module.exports = {
   register,
@@ -498,5 +624,7 @@ module.exports = {
   dashboard,
   checkPenjual,
   toIndonesianPhoneNumber,
+  resendOtp,
+  verifyEmail,
   //   changePassword,
 };

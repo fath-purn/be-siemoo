@@ -36,25 +36,29 @@ enum Hasil {
 }
 
 model Users {
-  id          Int         @id @default(autoincrement())
-  email       String      @unique
-  password    String
-  fullname    String
-  sapi        Int?
-  no_wa       String?
-  rt          String?
-  rw          String?
-  id_kelompok Int
-  kelompok    Kelompok    @relation(fields: [id_kelompok], references: [id])
-  role        Role        @default(pembeli)
-  artikels    Artikel[]
-  pengujian   Pengujian[]
-  deteksis    Deteksi[]
-  warung      Warung[]
-  sakit       Sakit[]
-  cocoblog    Cocoblog[]
-  created     DateTime    @default(now())
-  updated     DateTime    @updatedAt
+  id                        Int         @id @default(autoincrement())
+  email                     String      @unique
+  password                  String
+  fullname                  String
+  sapi                      Int?
+  no_wa                     String?
+  rt                        String?
+  rw                        String?
+  verified                  Boolean     @default(false)
+  verificationCode          String?
+  verificationCodeExpiresAt BigInt?
+  id_kelompok               Int
+  kelompok                  Kelompok    @relation(fields: [id_kelompok], references: [id])
+  role                      Role        @default(pembeli)
+  artikels                  Artikel[]
+  pengujian                 Pengujian[]
+  deteksis                  Deteksi[]
+  warung                    Warung[]
+  sakit                     Sakit[]
+  cocoblog                  Cocoblog[]
+  aktivitas                 Aktivitas[]
+  created                   DateTime    @default(now())
+  updated                   DateTime    @updatedAt
 }
 
 model Kelompok {
@@ -208,4 +212,14 @@ model Cocoblog {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   gambar    Media[]
+}
+
+model Aktivitas {
+  id        Int      @id @default(autoincrement())
+  id_user   Int
+  aktivitas String
+  status    String
+  user      Users    @relation(fields: [id_user], references: [id])
+  created   DateTime @default(now())
+  updated   DateTime @updatedAt
 }
